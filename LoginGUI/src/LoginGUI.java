@@ -22,10 +22,11 @@ public class LoginGUI extends JFrame {
 	//Public Static variables for use with other program classes
 	public static File file = new File("credentials.txt");
 	public static String[] users = new String[10];
-	public static String type;
+	
 	
 	//Private Static variables to use all over this program class
 	private static Scanner fileScanner; 
+	private static String type;
 	private JTextField user;
 	private JTextField pass;
 
@@ -132,11 +133,13 @@ public class LoginGUI extends JFrame {
 					Arrays.toString(users).contains(user.getText() + ":" + pass.getText() + ";reg")) {
 					if(users[i].equals(user.getText() + ":" + pass.getText() + ";admin")) {
 						type = "admin";
-						//Add the Program Call Here
+						LoginGUI.this.dispose();
+						new ProgramGUI(type);
 					}
 					else if(users[i].equals(user.getText() + ":" + pass.getText() + ";reg")) {
 						type = "user";
-						//Add the Program Call Here
+						LoginGUI.this.dispose();
+						new ProgramGUI(type);
 					}
 				}
 			}
