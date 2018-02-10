@@ -3,7 +3,10 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Arrays;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -28,6 +31,7 @@ public class ProgramGUI extends JFrame {
 	private static String[] users = LoginGUI.users;
 	private static  File file = LoginGUI.file;
 	private String type;
+	private int index;
 	
 	public ProgramGUI(String type) {
 		this.type = type;
@@ -92,8 +96,8 @@ public class ProgramGUI extends JFrame {
 		}
 		else {
 			ProgramGUI.this.dispose();
-			int index = nextUserIndex();
-			frame = new JFrame("Adding user #" + index);
+			index = nextUserIndex();
+			frame = new JFrame("Adding user #" + (index+1));
 			frame.setSize(275, 120);
 			frame.setLocationRelativeTo(null);
 			frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -134,7 +138,23 @@ public class ProgramGUI extends JFrame {
 			button.addActionListener(new ButtonListener());
 			panel.add(button);
 			frame.add(panel, BorderLayout.NORTH);
-			setVisible(true);
+			frame.setVisible(true);
+		}
+		else if(error == USER_EXISTS) {
+			frame.dispose();
+			frame = new JFrame("Error: User Exists");
+			frame.setSize(275, 120);
+			frame.setLocationRelativeTo(null);
+			frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+			JPanel panel = new JPanel();
+			panel.setLayout(new GridLayout(2, 1));
+			panel.setBorder(BorderFactory.createEmptyBorder(10,10,0,10));
+			panel.add(new JLabel("The user " + user.getText() + " already exists."));
+			JButton button = new JButton("Return to Main Menu");
+			button.addActionListener(new ButtonListener());
+			panel.add(button);
+			frame.add(panel, BorderLayout.NORTH);
+			frame.setVisible(true);
 		}
 	}
 	
@@ -143,9 +163,41 @@ public class ProgramGUI extends JFrame {
 		for(int i = 0; i < users.length; i++) {
 			if(users[i].equals("")) {
 				index = i;
+				break;
 			}
 		}
 		return index;
+	}
+	
+	public void repopFile() throws FileNotFoundException {
+		PrintWriter writer = new PrintWriter(file.getName());
+		for(int i = 0; i < users.length; i++) {
+			if(users[i].equals("")) {
+				break;
+			}
+			writer.println(users[i]);
+		}
+		writer.close();
+	}
+	
+	public void confirm(String toConfirm) {
+		if(toConfirm.equals("add")) {
+			frame.dispose();
+			frame = new JFrame("User Added Successfully");
+			frame.setSize(275, 120);
+			frame.setLocationRelativeTo(null);
+			frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+			JPanel panel = new JPanel();
+			panel.setLayout(new GridLayout(2, 1));
+			panel.setBorder(BorderFactory.createEmptyBorder(10,10,0,10));
+			panel.add(new JLabel("The user " + user.getText() + " has been added successfully"));
+			JButton button = new JButton("Return to Main Menu");
+			button.addActionListener(e -> frame.dispose());
+			panel.add(button);
+			frame.add(panel, BorderLayout.NORTH);
+			frame.setAlwaysOnTop(true);
+			frame.setVisible(true);
+		}
 	}
 	
 	private class OKListener implements ActionListener {
@@ -177,9 +229,19 @@ public class ProgramGUI extends JFrame {
 	private class AddListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			
+			for(int i = 0; i < users.length; i++) {
+				if(users[i].substring(0, users[i].indexOf(':')).equals(user.getText())) {
+					error(USER_EXISTS);
+				}
+				else {
+					try {
+					users[index] = user.getText() + ":" + pass.getText() + ";reg";
+					repopFile();
+					confirm("add");
+					new ProgramGUI();
+					} catch (FileNotFoundException ex) {}
+				}
+			}
 		}
 	}
-
-
 }
