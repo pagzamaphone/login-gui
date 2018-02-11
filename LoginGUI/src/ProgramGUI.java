@@ -19,13 +19,13 @@ import javax.swing.JTextField;
 public class ProgramGUI extends JFrame {
 
 	//Error numbers for the error(int error) method
-	private static final int USER_LIMIT_REACHED = 0;
-	private static final int USER_EXISTS = 1;
-	private static final int USER_NOT_FOUND = 2;
-	private static final int CMD_NOT_FOUND = 3;
-	private static final int ALREADY_ADMIN = 4;
-	private static final int ALREADY_REG = 5;
-	private static final int PERMISSIONS = 6;
+	private final int USER_LIMIT_REACHED = 0;
+	private final int USER_EXISTS = 1;
+	private final int USER_NOT_FOUND = 2;
+	private final int CMD_NOT_FOUND = 3;
+	private final int ALREADY_ADMIN = 4;
+	private final int ALREADY_REG = 5;
+	private final int PERMISSIONS = 6;
 	
 	//Private nonstatic JComponents for access in this class
 	private JTextField user;
@@ -102,6 +102,9 @@ public class ProgramGUI extends JFrame {
 		}
 		else if(cmd.getText().equals("promote")) {
 			promote();
+		}
+		else if(cmd.getText().equals("demote")) {
+			demote();
 		}
 		else {
 			error(CMD_NOT_FOUND);
@@ -332,6 +335,23 @@ public class ProgramGUI extends JFrame {
 			frame.setAlwaysOnTop(true);
 			frame.setVisible(true);
 		}
+		else if(toConfirm.equals("demote")) {
+			frame.dispose();
+			frame = new JFrame("User Demoted Successfully");
+			frame.setSize(275, 120);
+			frame.setLocationRelativeTo(null);
+			frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+			JPanel panel = new JPanel();
+			panel.setLayout(new GridLayout(2, 1));
+			panel.setBorder(BorderFactory.createEmptyBorder(10,10,0,10));
+			panel.add(new JLabel("The user " +user.getText() + " is now aregular user"));
+			JButton button = new JButton("Return to Main Menu");
+			button.addActionListener(e -> frame.dispose());
+			panel.add(button);
+			frame.add(panel, BorderLayout.NORTH);
+			frame.setAlwaysOnTop(true);
+			frame.setVisible(true);
+		}
 	}
 	
 	public void delUser() {
@@ -393,7 +413,7 @@ public class ProgramGUI extends JFrame {
 		frame.setLocationRelativeTo(null);
 		JPanel panel = new JPanel();
 		panel.setLayout(new GridLayout(1, 2));
-		panel.add(new JLabel("Promote which user: "));
+		panel.add(new JLabel("Promote user: "));
 		user = new JTextField();
 		panel.add(user);
 		panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
@@ -409,6 +429,29 @@ public class ProgramGUI extends JFrame {
 		frame.setVisible(true);
 	}
 	
+	private void demote() {
+		ProgramGUI.this.dispose();
+		frame = new JFrame("Demote a User");
+		frame.setSize(275, 120);
+		frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+		frame.setLocationRelativeTo(null);
+		JPanel panel = new JPanel();
+		panel.setLayout(new GridLayout(1, 2));
+		panel.add(new JLabel("Demote user: "));
+		user = new JTextField();
+		panel.add(user);
+		panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
+		frame.add(panel, BorderLayout.NORTH);
+		JPanel button = new JPanel();
+		JButton confirm = new JButton("Confirm Demotion");
+		JButton cancel = new JButton("Cancel");
+		cancel.addActionListener(new ButtonListener());
+		confirm.addActionListener(new DemoteListener());
+		button.add(confirm);
+		button.add(cancel);
+		frame.add(button, BorderLayout.SOUTH);
+		frame.setVisible(true);
+	}
 	private class OKListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -525,7 +568,34 @@ public class ProgramGUI extends JFrame {
 			}catch (FileNotFoundException ex) {}
 		}
 		else {
-			error(USER_NOT_FOUND);			}
+			error(USER_NOT_FOUND);			
+			}
+		}
+	}
+	
+	private class DemoteListener implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if(Arrays.toString(users).contains(user.getText())) {
+				for(int i = 0; i < users.length; i++) {
+						if(!(users[i].equals(""))) {
+						if(users[i].substring(0, users[i].indexOf(':')).equals(user.getText()) && users[i].contains("reg")) {
+							error(ALREADY_REG);
+						}
+						else if(users[i].substring(0, users[i].indexOf(':')).equals(user.getText()) && users[i].contains("admin")) {
+							users[i] = users[i].substring(0, users[i].indexOf(';') + 1) + "reg";
+						}
+				}
+			}
+			try {
+				repopFile();
+				confirm("demote");
+				new ProgramGUI();
+			}catch (FileNotFoundException ex) {}
+		}
+		else {
+			error(USER_NOT_FOUND);			
+			}
 		}
 	}
 }
