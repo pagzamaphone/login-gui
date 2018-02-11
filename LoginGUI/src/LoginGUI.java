@@ -26,7 +26,6 @@ public class LoginGUI extends JFrame {
 	
 	//Private Static variables to use all over this program class
 	private static Scanner fileScanner; 
-	private static String type;
 	private JTextField user;
 	private JTextField pass;
 
@@ -132,14 +131,12 @@ public class LoginGUI extends JFrame {
 				if(Arrays.toString(users).contains(user.getText() + ":" + pass.getText() + ";admin") ||
 					Arrays.toString(users).contains(user.getText() + ":" + pass.getText() + ";reg")) {
 					if(users[i].equals(user.getText() + ":" + pass.getText() + ";admin")) {
-						type = "admin";
 						LoginGUI.this.dispose();
-						new ProgramGUI(type);
+						new ProgramGUI("admin");
 					}
 					else if(users[i].equals(user.getText() + ":" + pass.getText() + ";reg")) {
-						type = "user";
 						LoginGUI.this.dispose();
-						new ProgramGUI(type);
+						new ProgramGUI("reg");
 					}
 				}
 			}

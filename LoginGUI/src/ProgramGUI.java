@@ -15,7 +15,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-@SuppressWarnings({"serial", "unused"})
+@SuppressWarnings({"serial"})
 public class ProgramGUI extends JFrame {
 
 	//Error numbers for the error(int error) method
@@ -37,11 +37,11 @@ public class ProgramGUI extends JFrame {
 	//Private static variables for use in this class
 	private static String[] users = LoginGUI.users;
 	private static  File file = LoginGUI.file;
-	private String type;
+	private static String type;
 	private int index;
 	
 	public ProgramGUI(String type) {
-		this.type = type;
+		ProgramGUI.type = type;
 		setTitle("Command Window");
 		setSize(275, 120);
 		setLocationRelativeTo(null);
@@ -92,19 +92,44 @@ public class ProgramGUI extends JFrame {
 	private void commandCheck() {
 		
 		if(cmd.getText().toLowerCase().equals("adduser")) {
-			addUser();
+			if(type.equals("admin")) {
+				addUser();
+			}
+			else {
+				error(PERMISSIONS);
+			}
 		}
 		else if(cmd.getText().toLowerCase().equals("deluser")) {
-			delUser();
+			if(type.equals("admin")) {
+				delUser();
+			}
+			else {
+				error(PERMISSIONS);
+			};
 		}
 		else if(cmd.getText().equals("rename")) {
-			rename();
+			if(type.equals("admin")) {
+				rename();
+			}
+			else {
+				error(PERMISSIONS);
+			}
 		}
 		else if(cmd.getText().equals("promote")) {
-			promote();
+			if(type.equals("admin")) {
+				promote();
+			}
+			else {
+				error(PERMISSIONS);
+			}
 		}
 		else if(cmd.getText().equals("demote")) {
-			demote();
+			if(type.equals("admin")) {
+				demote();
+			}
+			else {
+				error(PERMISSIONS);
+			}
 		}
 		else {
 			error(CMD_NOT_FOUND);
@@ -195,7 +220,7 @@ public class ProgramGUI extends JFrame {
 			frame.setVisible(true);
 		}
 		else if(error == CMD_NOT_FOUND) {
-			frame.dispose();
+			ProgramGUI.this.dispose();
 			frame = new JFrame("Error: Invalid Command");
 			frame.setSize(275, 120);
 			frame.setLocationRelativeTo(null);
@@ -236,6 +261,23 @@ public class ProgramGUI extends JFrame {
 			panel.setLayout(new GridLayout(2, 1));
 			panel.setBorder(BorderFactory.createEmptyBorder(10,10,0,10));
 			panel.add(new JLabel("The user " + user.getText() + " is already a regular user."));
+			JButton button = new JButton("Return to Main Menu");
+			button.addActionListener(new ButtonListener());
+			panel.add(button);
+			frame.add(panel, BorderLayout.NORTH);
+			frame.setVisible(true);
+		}
+		
+		else if(error == PERMISSIONS) {
+			ProgramGUI.this.dispose();
+			frame = new JFrame("Error: Permissions");
+			frame.setSize(275, 120);
+			frame.setLocationRelativeTo(null);
+			frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+			JPanel panel = new JPanel();
+			panel.setLayout(new GridLayout(2, 1));
+			panel.setBorder(BorderFactory.createEmptyBorder(10,10,0,10));
+			panel.add(new JLabel("You do not have permission."));
 			JButton button = new JButton("Return to Main Menu");
 			button.addActionListener(new ButtonListener());
 			panel.add(button);
