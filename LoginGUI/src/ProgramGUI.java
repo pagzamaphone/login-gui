@@ -18,17 +18,21 @@ import javax.swing.JTextField;
 @SuppressWarnings({"serial", "unused"})
 public class ProgramGUI extends JFrame {
 
+	//Error numbers for the error(int error) method
 	private static final int USER_LIMIT_REACHED = 0;
 	private static final int USER_EXISTS = 1;
-	private static final int USER_NOT_FOUND = 3;
+	private static final int USER_NOT_FOUND = 2;
+	private static final int CMD_NOT_FOUND = 3;
 	private static final int PERMISSIONS = 4;
 	
+	//Private nonstatic JComponents for access in this class
 	private JTextField user;
 	private JTextField pass;
 	private JTextField oldUser;
 	private JTextField cmd;
 	private JFrame frame;
 	
+	//Private static variables for use in this class
 	private static String[] users = LoginGUI.users;
 	private static  File file = LoginGUI.file;
 	private String type;
@@ -90,6 +94,12 @@ public class ProgramGUI extends JFrame {
 		}
 		else if(cmd.getText().toLowerCase().equals("deluser")) {
 			delUser();
+		}
+		else if(cmd.getText().equals("rename")) {
+			rename();
+		}
+		else {
+			error(CMD_NOT_FOUND);
 		}
 	}
 	
@@ -160,6 +170,38 @@ public class ProgramGUI extends JFrame {
 			frame.add(panel, BorderLayout.NORTH);
 			frame.setVisible(true);
 		}
+		else if(error == USER_NOT_FOUND) {
+			frame.dispose();
+			frame = new JFrame("Error: User Not Found");
+			frame.setSize(275, 120);
+			frame.setLocationRelativeTo(null);
+			frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+			JPanel panel = new JPanel();
+			panel.setLayout(new GridLayout(2, 1));
+			panel.setBorder(BorderFactory.createEmptyBorder(10,10,0,10));
+			panel.add(new JLabel("The user " + user.getText() + " does not exist."));
+			JButton button = new JButton("Return to Main Menu");
+			button.addActionListener(new ButtonListener());
+			panel.add(button);
+			frame.add(panel, BorderLayout.NORTH);
+			frame.setVisible(true);
+		}
+		else if(error == CMD_NOT_FOUND) {
+			frame.dispose();
+			frame = new JFrame("Error: Invalid Command");
+			frame.setSize(275, 120);
+			frame.setLocationRelativeTo(null);
+			frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+			JPanel panel = new JPanel();
+			panel.setLayout(new GridLayout(2, 1));
+			panel.setBorder(BorderFactory.createEmptyBorder(10,10,0,10));
+			panel.add(new JLabel("The command " + cmd.getText() + " does not exist."));
+			JButton button = new JButton("Return to Main Menu");
+			button.addActionListener(new ButtonListener());
+			panel.add(button);
+			frame.add(panel, BorderLayout.NORTH);
+			frame.setVisible(true);
+		}
 	}
 	
 	private int nextUserIndex() {
@@ -219,6 +261,23 @@ public class ProgramGUI extends JFrame {
 			frame.setAlwaysOnTop(true);
 			frame.setVisible(true);
 		}
+		else if(toConfirm.equals("rename")) {
+			frame.dispose();
+			frame = new JFrame("User Reanmed Successfully");
+			frame.setSize(275, 120);
+			frame.setLocationRelativeTo(null);
+			frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+			JPanel panel = new JPanel();
+			panel.setLayout(new GridLayout(2, 1));
+			panel.setBorder(BorderFactory.createEmptyBorder(10,10,0,10));
+			panel.add(new JLabel("The user " +oldUser.getText() + " is now " + user.getText()));
+			JButton button = new JButton("Return to Main Menu");
+			button.addActionListener(e -> frame.dispose());
+			panel.add(button);
+			frame.add(panel, BorderLayout.NORTH);
+			frame.setAlwaysOnTop(true);
+			frame.setVisible(true);
+		}
 	}
 	
 	public void delUser() {
@@ -239,6 +298,33 @@ public class ProgramGUI extends JFrame {
 		JButton cancel = new JButton("Cancel");
 		cancel.addActionListener(new ButtonListener());
 		confirm.addActionListener(new DelListener());
+		button.add(confirm);
+		button.add(cancel);
+		frame.add(button, BorderLayout.SOUTH);
+		frame.setVisible(true);
+	}
+	
+	private void rename() {
+		ProgramGUI.this.dispose();
+		frame = new JFrame("Rename a User");
+		frame.setSize(275, 120);
+		frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+		frame.setLocationRelativeTo(null);
+		JPanel panel = new JPanel();
+		panel.setLayout(new GridLayout(2, 2));
+		panel.add(new JLabel("Rename which user: "));
+		oldUser = new JTextField();
+		user = new JTextField();
+		panel.add(oldUser);
+		panel.add(new JLabel("Rename to: "));
+		panel.add(user);
+		panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
+		frame.add(panel, BorderLayout.NORTH);
+		JPanel button = new JPanel();
+		JButton confirm = new JButton("Confirm Rename");
+		JButton cancel = new JButton("Cancel");
+		cancel.addActionListener(new ButtonListener());
+		confirm.addActionListener(new RenameListener());
 		button.add(confirm);
 		button.add(cancel);
 		frame.add(button, BorderLayout.SOUTH);
@@ -312,6 +398,31 @@ public class ProgramGUI extends JFrame {
 					new ProgramGUI();
 				} catch (FileNotFoundException ex) {}
 			}
+		}
+	}
+	
+	private class RenameListener implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			for(int i = 0; i < users.length; i++) {
+				if(!(users[i].equals(""))) {
+					if(users[i].substring(0, users[i].indexOf(':')).equals(user.getText())) {
+						error(USER_EXISTS);
+					}
+				}
+			}
+				for(int i = 0; i < users.length; i++) {
+					if(!(users[i].equals(""))) {
+						if(users[i].substring(0, users[i].indexOf(':')).equals(oldUser.getText())) {
+							users[i] = user.getText() + users[i].substring(users[i].indexOf(':'));
+						}
+					}
+				}
+			try {
+				repopFile();
+				confirm("rename");
+				new ProgramGUI();
+			} catch(FileNotFoundException ex) {}
 		}
 	}
 }
