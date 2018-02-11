@@ -1,3 +1,4 @@
-/.metadata/
+.metadata
+.recommenders
+LoginGUI/bin
 LoginGUI/.settings/
-.recommenders/
