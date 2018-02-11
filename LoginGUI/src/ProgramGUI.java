@@ -21,6 +21,7 @@ public class ProgramGUI extends JFrame {
 	private static final int USER_LIMIT_REACHED = 0;
 	private static final int USER_EXISTS = 1;
 	private static final int USER_NOT_FOUND = 3;
+	private static final int PERMISSIONS = 4;
 	
 	private JTextField user;
 	private JTextField pass;
@@ -86,6 +87,9 @@ public class ProgramGUI extends JFrame {
 		
 		if(cmd.getText().toLowerCase().equals("adduser")) {
 			addUser();
+		}
+		else if(cmd.getText().toLowerCase().equals("deluser")) {
+			delUser();
 		}
 	}
 	
@@ -173,7 +177,7 @@ public class ProgramGUI extends JFrame {
 		PrintWriter writer = new PrintWriter(file.getName());
 		for(int i = 0; i < users.length; i++) {
 			if(users[i].equals("")) {
-				break;
+				continue;
 			}
 			writer.println(users[i]);
 		}
@@ -190,7 +194,7 @@ public class ProgramGUI extends JFrame {
 			JPanel panel = new JPanel();
 			panel.setLayout(new GridLayout(2, 1));
 			panel.setBorder(BorderFactory.createEmptyBorder(10,10,0,10));
-			panel.add(new JLabel("The user " + user.getText() + " has been added successfully"));
+			panel.add(new JLabel("The user " + user.getText() + " has been added"));
 			JButton button = new JButton("Return to Main Menu");
 			button.addActionListener(e -> frame.dispose());
 			panel.add(button);
@@ -198,6 +202,47 @@ public class ProgramGUI extends JFrame {
 			frame.setAlwaysOnTop(true);
 			frame.setVisible(true);
 		}
+		else if(toConfirm.equals("del")) {
+			frame.dispose();
+			frame = new JFrame("User Deleted Successfully");
+			frame.setSize(275, 120);
+			frame.setLocationRelativeTo(null);
+			frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+			JPanel panel = new JPanel();
+			panel.setLayout(new GridLayout(2, 1));
+			panel.setBorder(BorderFactory.createEmptyBorder(10,10,0,10));
+			panel.add(new JLabel("The user " + user.getText() + " has been deleted"));
+			JButton button = new JButton("Return to Main Menu");
+			button.addActionListener(e -> frame.dispose());
+			panel.add(button);
+			frame.add(panel, BorderLayout.NORTH);
+			frame.setAlwaysOnTop(true);
+			frame.setVisible(true);
+		}
+	}
+	
+	public void delUser() {
+		ProgramGUI.this.dispose();
+		frame = new JFrame("Delete a User");
+		frame.setSize(275, 120);
+		frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+		frame.setLocationRelativeTo(null);
+		JPanel panel = new JPanel();
+		panel.setLayout(new GridLayout(1, 2));
+		panel.add(new JLabel("Delete which user: "));
+		user = new JTextField();
+		panel.add(user);
+		panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
+		frame.add(panel, BorderLayout.NORTH);
+		JPanel button = new JPanel();
+		JButton confirm = new JButton("Confirm Delete");
+		JButton cancel = new JButton("Cancel");
+		cancel.addActionListener(new ButtonListener());
+		confirm.addActionListener(new DelListener());
+		button.add(confirm);
+		button.add(cancel);
+		frame.add(button, BorderLayout.SOUTH);
+		frame.setVisible(true);
 	}
 	
 	private class OKListener implements ActionListener {
@@ -230,17 +275,42 @@ public class ProgramGUI extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			for(int i = 0; i < users.length; i++) {
-				if(users[i].substring(0, users[i].indexOf(':')).equals(user.getText())) {
+				if(Arrays.toString(users).contains(user.getText() + ":")) {
 					error(USER_EXISTS);
 				}
+				
 				else {
-					try {
 					users[index] = user.getText() + ":" + pass.getText() + ";reg";
-					repopFile();
-					confirm("add");
-					new ProgramGUI();
-					} catch (FileNotFoundException ex) {}
+					break;
 				}
+			}
+			try {
+				repopFile();
+				confirm("add");
+				new ProgramGUI();
+			} catch (FileNotFoundException ex) {}
+		}
+	}
+	
+	private class DelListener implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if(!(Arrays.toString(users).contains(user.getText() + ":"))) {
+				error(USER_NOT_FOUND);
+			}
+			else {
+				for(int i = 0; i < users.length; i++) {
+					if(users[i].contains(user.getText())) {
+						users[i] = "";
+						break;
+						
+					}
+				}
+				try {
+					repopFile();
+					confirm("del");
+					new ProgramGUI();
+				} catch (FileNotFoundException ex) {}
 			}
 		}
 	}

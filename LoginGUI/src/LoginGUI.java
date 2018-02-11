@@ -74,7 +74,7 @@ public class LoginGUI extends JFrame {
 			pass = new JTextField();
 			JPanel button = new JPanel();
 			JButton ok = new JButton("Confirm");
-			JButton cancel = new JButton("Cancel");
+			JButton cancel = new JButton("Exit Program");
 			button.add(ok);
 			button.add(cancel);
 			cancel.addActionListener(e -> this.dispose());
