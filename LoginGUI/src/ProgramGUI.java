@@ -23,7 +23,9 @@ public class ProgramGUI extends JFrame {
 	private static final int USER_EXISTS = 1;
 	private static final int USER_NOT_FOUND = 2;
 	private static final int CMD_NOT_FOUND = 3;
-	private static final int PERMISSIONS = 4;
+	private static final int ALREADY_ADMIN = 4;
+	private static final int ALREADY_REG = 5;
+	private static final int PERMISSIONS = 6;
 	
 	//Private nonstatic JComponents for access in this class
 	private JTextField user;
@@ -97,6 +99,9 @@ public class ProgramGUI extends JFrame {
 		}
 		else if(cmd.getText().equals("rename")) {
 			rename();
+		}
+		else if(cmd.getText().equals("promote")) {
+			promote();
 		}
 		else {
 			error(CMD_NOT_FOUND);
@@ -202,6 +207,38 @@ public class ProgramGUI extends JFrame {
 			frame.add(panel, BorderLayout.NORTH);
 			frame.setVisible(true);
 		}
+		else if(error == ALREADY_ADMIN) {
+			frame.dispose();
+			frame = new JFrame("Error: Promotion");
+			frame.setSize(275, 120);
+			frame.setLocationRelativeTo(null);
+			frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+			JPanel panel = new JPanel();
+			panel.setLayout(new GridLayout(2, 1));
+			panel.setBorder(BorderFactory.createEmptyBorder(10,10,0,10));
+			panel.add(new JLabel("The user " + user.getText() + " is already an admin."));
+			JButton button = new JButton("Return to Main Menu");
+			button.addActionListener(new ButtonListener());
+			panel.add(button);
+			frame.add(panel, BorderLayout.NORTH);
+			frame.setVisible(true);
+		}
+		else if(error == ALREADY_REG) {
+			frame.dispose();
+			frame = new JFrame("Error: Demotion");
+			frame.setSize(275, 120);
+			frame.setLocationRelativeTo(null);
+			frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+			JPanel panel = new JPanel();
+			panel.setLayout(new GridLayout(2, 1));
+			panel.setBorder(BorderFactory.createEmptyBorder(10,10,0,10));
+			panel.add(new JLabel("The user " + user.getText() + " is already a regular user."));
+			JButton button = new JButton("Return to Main Menu");
+			button.addActionListener(new ButtonListener());
+			panel.add(button);
+			frame.add(panel, BorderLayout.NORTH);
+			frame.setVisible(true);
+		}
 	}
 	
 	private int nextUserIndex() {
@@ -278,6 +315,23 @@ public class ProgramGUI extends JFrame {
 			frame.setAlwaysOnTop(true);
 			frame.setVisible(true);
 		}
+		else if(toConfirm.equals("promote")) {
+			frame.dispose();
+			frame = new JFrame("User Promoted Successfully");
+			frame.setSize(275, 120);
+			frame.setLocationRelativeTo(null);
+			frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+			JPanel panel = new JPanel();
+			panel.setLayout(new GridLayout(2, 1));
+			panel.setBorder(BorderFactory.createEmptyBorder(10,10,0,10));
+			panel.add(new JLabel("The user " +user.getText() + " is now an admin"));
+			JButton button = new JButton("Return to Main Menu");
+			button.addActionListener(e -> frame.dispose());
+			panel.add(button);
+			frame.add(panel, BorderLayout.NORTH);
+			frame.setAlwaysOnTop(true);
+			frame.setVisible(true);
+		}
 	}
 	
 	public void delUser() {
@@ -325,6 +379,30 @@ public class ProgramGUI extends JFrame {
 		JButton cancel = new JButton("Cancel");
 		cancel.addActionListener(new ButtonListener());
 		confirm.addActionListener(new RenameListener());
+		button.add(confirm);
+		button.add(cancel);
+		frame.add(button, BorderLayout.SOUTH);
+		frame.setVisible(true);
+	}
+	
+	private void promote() {
+		ProgramGUI.this.dispose();
+		frame = new JFrame("Promote a User");
+		frame.setSize(275, 120);
+		frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+		frame.setLocationRelativeTo(null);
+		JPanel panel = new JPanel();
+		panel.setLayout(new GridLayout(1, 2));
+		panel.add(new JLabel("Promote which user: "));
+		user = new JTextField();
+		panel.add(user);
+		panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
+		frame.add(panel, BorderLayout.NORTH);
+		JPanel button = new JPanel();
+		JButton confirm = new JButton("Confirm Promotion");
+		JButton cancel = new JButton("Cancel");
+		cancel.addActionListener(new ButtonListener());
+		confirm.addActionListener(new PromoteListener());
 		button.add(confirm);
 		button.add(cancel);
 		frame.add(button, BorderLayout.SOUTH);
@@ -423,6 +501,31 @@ public class ProgramGUI extends JFrame {
 				confirm("rename");
 				new ProgramGUI();
 			} catch(FileNotFoundException ex) {}
+		}
+	}
+	
+	private class PromoteListener implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if(Arrays.toString(users).contains(user.getText())) {
+				for(int i = 0; i < users.length; i++) {
+						if(!(users[i].equals(""))) {
+						if(users[i].substring(0, users[i].indexOf(':')).equals(user.getText()) && users[i].contains("admin")) {
+							error(ALREADY_ADMIN);
+						}
+						else if(users[i].substring(0, users[i].indexOf(':')).equals(user.getText()) && users[i].contains("reg")) {
+							users[i] = users[i].substring(0, users[i].indexOf(';') + 1) + "admin";
+						}
+				}
+			}
+			try {
+				repopFile();
+				confirm("promote");
+				new ProgramGUI();
+			}catch (FileNotFoundException ex) {}
+		}
+		else {
+			error(USER_NOT_FOUND);			}
 		}
 	}
 }
