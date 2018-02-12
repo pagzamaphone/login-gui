@@ -26,6 +26,9 @@ public class ProgramGUI extends JFrame {
 	private final int ALREADY_ADMIN = 4;
 	private final int ALREADY_REG = 5;
 	private final int PERMISSIONS = 6;
+
+	private static final int FRAME_WIDTH = 300;
+	private static final int FRAME_HEIGHT = 145;
 	
 	//Private nonstatic JComponents for access in this class
 	private JTextField user;
@@ -43,7 +46,7 @@ public class ProgramGUI extends JFrame {
 	public ProgramGUI(String type) {
 		ProgramGUI.type = type;
 		setTitle("Command Window");
-		setSize(275, 120);
+		setSize(FRAME_WIDTH, FRAME_HEIGHT);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		JPanel panel = new JPanel();
@@ -67,7 +70,7 @@ public class ProgramGUI extends JFrame {
 	
 	private ProgramGUI() {
 		setTitle("Command Window");
-		setSize(275, 120);
+		setSize(FRAME_WIDTH, FRAME_HEIGHT);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		JPanel panel = new JPanel();
@@ -145,7 +148,7 @@ public class ProgramGUI extends JFrame {
 			ProgramGUI.this.dispose();
 			index = nextUserIndex();
 			frame = new JFrame("Adding user #" + (index+1));
-			frame.setSize(275, 120);
+			frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
 			frame.setLocationRelativeTo(null);
 			frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
 			JPanel panel = new JPanel();
@@ -174,7 +177,7 @@ public class ProgramGUI extends JFrame {
 		if(error == USER_LIMIT_REACHED) {
 			frame.dispose();
 			frame = new JFrame("Error: User Limit Reached");
-			frame.setSize(275, 120);
+			frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
 			frame.setLocationRelativeTo(null);
 			frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
 			JPanel panel = new JPanel();
@@ -190,7 +193,7 @@ public class ProgramGUI extends JFrame {
 		else if(error == USER_EXISTS) {
 			frame.dispose();
 			frame = new JFrame("Error: User Exists");
-			frame.setSize(275, 120);
+			frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
 			frame.setLocationRelativeTo(null);
 			frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
 			JPanel panel = new JPanel();
@@ -206,7 +209,7 @@ public class ProgramGUI extends JFrame {
 		else if(error == USER_NOT_FOUND) {
 			frame.dispose();
 			frame = new JFrame("Error: User Not Found");
-			frame.setSize(275, 120);
+			frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
 			frame.setLocationRelativeTo(null);
 			frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
 			JPanel panel = new JPanel();
@@ -222,7 +225,7 @@ public class ProgramGUI extends JFrame {
 		else if(error == CMD_NOT_FOUND) {
 			ProgramGUI.this.dispose();
 			frame = new JFrame("Error: Invalid Command");
-			frame.setSize(275, 120);
+			frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
 			frame.setLocationRelativeTo(null);
 			frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
 			JPanel panel = new JPanel();
@@ -238,7 +241,7 @@ public class ProgramGUI extends JFrame {
 		else if(error == ALREADY_ADMIN) {
 			frame.dispose();
 			frame = new JFrame("Error: Promotion");
-			frame.setSize(275, 120);
+			frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
 			frame.setLocationRelativeTo(null);
 			frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
 			JPanel panel = new JPanel();
@@ -254,7 +257,7 @@ public class ProgramGUI extends JFrame {
 		else if(error == ALREADY_REG) {
 			frame.dispose();
 			frame = new JFrame("Error: Demotion");
-			frame.setSize(275, 120);
+			frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
 			frame.setLocationRelativeTo(null);
 			frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
 			JPanel panel = new JPanel();
@@ -271,7 +274,7 @@ public class ProgramGUI extends JFrame {
 		else if(error == PERMISSIONS) {
 			ProgramGUI.this.dispose();
 			frame = new JFrame("Error: Permissions");
-			frame.setSize(275, 120);
+			frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
 			frame.setLocationRelativeTo(null);
 			frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
 			JPanel panel = new JPanel();
@@ -312,7 +315,7 @@ public class ProgramGUI extends JFrame {
 		if(toConfirm.equals("add")) {
 			frame.dispose();
 			frame = new JFrame("User Added Successfully");
-			frame.setSize(275, 120);
+			frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
 			frame.setLocationRelativeTo(null);
 			frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
 			JPanel panel = new JPanel();
@@ -329,7 +332,7 @@ public class ProgramGUI extends JFrame {
 		else if(toConfirm.equals("del")) {
 			frame.dispose();
 			frame = new JFrame("User Deleted Successfully");
-			frame.setSize(275, 120);
+			frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
 			frame.setLocationRelativeTo(null);
 			frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
 			JPanel panel = new JPanel();
@@ -346,7 +349,7 @@ public class ProgramGUI extends JFrame {
 		else if(toConfirm.equals("rename")) {
 			frame.dispose();
 			frame = new JFrame("User Reanmed Successfully");
-			frame.setSize(275, 120);
+			frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
 			frame.setLocationRelativeTo(null);
 			frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
 			JPanel panel = new JPanel();
@@ -363,7 +366,7 @@ public class ProgramGUI extends JFrame {
 		else if(toConfirm.equals("promote")) {
 			frame.dispose();
 			frame = new JFrame("User Promoted Successfully");
-			frame.setSize(275, 120);
+			frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
 			frame.setLocationRelativeTo(null);
 			frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
 			JPanel panel = new JPanel();
@@ -380,7 +383,7 @@ public class ProgramGUI extends JFrame {
 		else if(toConfirm.equals("demote")) {
 			frame.dispose();
 			frame = new JFrame("User Demoted Successfully");
-			frame.setSize(275, 120);
+			frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
 			frame.setLocationRelativeTo(null);
 			frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
 			JPanel panel = new JPanel();
@@ -399,7 +402,7 @@ public class ProgramGUI extends JFrame {
 	public void delUser() {
 		ProgramGUI.this.dispose();
 		frame = new JFrame("Delete a User");
-		frame.setSize(275, 120);
+		frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
 		frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		frame.setLocationRelativeTo(null);
 		JPanel panel = new JPanel();
@@ -423,7 +426,7 @@ public class ProgramGUI extends JFrame {
 	private void rename() {
 		ProgramGUI.this.dispose();
 		frame = new JFrame("Rename a User");
-		frame.setSize(275, 120);
+		frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
 		frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		frame.setLocationRelativeTo(null);
 		JPanel panel = new JPanel();
@@ -450,7 +453,7 @@ public class ProgramGUI extends JFrame {
 	private void promote() {
 		ProgramGUI.this.dispose();
 		frame = new JFrame("Promote a User");
-		frame.setSize(275, 120);
+		frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
 		frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		frame.setLocationRelativeTo(null);
 		JPanel panel = new JPanel();
@@ -474,7 +477,7 @@ public class ProgramGUI extends JFrame {
 	private void demote() {
 		ProgramGUI.this.dispose();
 		frame = new JFrame("Demote a User");
-		frame.setSize(275, 120);
+		frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
 		frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		frame.setLocationRelativeTo(null);
 		JPanel panel = new JPanel();

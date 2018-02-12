@@ -28,6 +28,8 @@ public class LoginGUI extends JFrame {
 	private static Scanner fileScanner; 
 	private JTextField user;
 	private JTextField pass;
+	private static final int FRAME_WIDTH = 300;
+	private static final int FRAME_HEIGHT = 145;
 
 	//Constructor for the LoginGUI
 	public LoginGUI() throws IOException {
@@ -54,7 +56,7 @@ public class LoginGUI extends JFrame {
 			setLocationRelativeTo(null);
 			setTitle("Initial Configuration - User");
 			setDefaultCloseOperation(EXIT_ON_CLOSE);
-			setSize(275, 120);
+			setSize(FRAME_WIDTH, FRAME_HEIGHT);
 			setVisible(true);
 
 		} 
@@ -88,7 +90,7 @@ public class LoginGUI extends JFrame {
 			setLocationRelativeTo(null);
 			setTitle("Log In");
 			setDefaultCloseOperation(EXIT_ON_CLOSE);
-			setSize(275, 120);
+			setSize(FRAME_WIDTH, FRAME_HEIGHT);
 			setVisible(true);
 			}
 			catch(FileNotFoundException e) {}
