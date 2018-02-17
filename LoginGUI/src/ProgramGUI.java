@@ -524,7 +524,7 @@ public class ProgramGUI extends JFrame {
 			frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
 			frame.setLocationRelativeTo(null);
 			JPanel panel = new JPanel();
-			panel.setLayout(new GridLayout(2, 2));
+			panel.setLayout(new GridLayout(1, 2));
 			panel.add(new JLabel("Rename to: "));
 			user = new JTextField();
 			panel.add(user);
