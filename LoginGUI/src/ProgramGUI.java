@@ -16,12 +16,11 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 /*
- * ProgramGUI version 1 by Johnny Console
- * 01 January 2018.
+ * ProgramGUI version 2 by Johnny Console
+ * 17 February 2018.
  * This program is a basic GUI program that uses Swing and AWT to
  * do the GUI components. This program is a  basic GUI program
- * that has a command interface with multiple commands. Future plans are to 
- * transform the program into a dummy pos, starting in version 2.
+ * that has a command interface with multiple commands, to make a dummy pos.
  */
 
 @SuppressWarnings({"serial"})
@@ -49,12 +48,14 @@ public class ProgramGUI extends JFrame {
 	//Private static variables for use in this class
 	private static String[] users = LoginGUI.users;
 	private static  File file = LoginGUI.file;
+	private static String logged = LoginGUI.logged;
 	private static String type;
 	private int index;
 	
 	//public constructor for the initial login program to activate the program
-	public ProgramGUI(String type) {
+	public ProgramGUI(String type, String logged) {
 		ProgramGUI.type = type;
+		ProgramGUI.logged = logged;
 		setTitle("Command Window");
 		setSize(FRAME_WIDTH, FRAME_HEIGHT);
 		setLocationRelativeTo(null);

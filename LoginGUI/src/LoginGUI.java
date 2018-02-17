@@ -17,12 +17,11 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 /*
- * LoginGUI version 1 by Johnny Console
- * 01 January 2018.
+ * LoginGUI version 2 by Johnny Console
+ * 17 February 2018.
  * This program is a basic GUI login program that uses Swing and AWT to
  * do the GUI components. This program leads into another basic GUI program
- * that has a command interface with multiple commands. Future plans are to 
- * transform the program into a dummy pos, starting in version 2.
+ * that has a command interface with multiple commands, to create a dummy pos.
  */
 
 @SuppressWarnings({ "serial" })
@@ -31,6 +30,7 @@ public class LoginGUI extends JFrame {
 	//Public Static variables for use with other program classes
 	public static File file = new File("credentials.txt");
 	public static String[] users = new String[10];
+	public static String logged;
 	
 	
 	//Private Static variables to use all over this program class
@@ -142,12 +142,14 @@ public class LoginGUI extends JFrame {
 				if(Arrays.toString(users).contains(user.getText() + ":" + pass.getText() + ";admin") ||
 					Arrays.toString(users).contains(user.getText() + ":" + pass.getText() + ";reg")) {
 					if(users[i].equals(user.getText() + ":" + pass.getText() + ";admin")) {
+						logged = user.getText();
 						LoginGUI.this.dispose();
-						new ProgramGUI("admin");
+						new ProgramGUI("admin", logged);
 					}
 					else if(users[i].equals(user.getText() + ":" + pass.getText() + ";reg")) {
+						logged = user.getText();
 						LoginGUI.this.dispose();
-						new ProgramGUI("reg");
+						new ProgramGUI("reg", logged);
 					}
 				}
 			}
