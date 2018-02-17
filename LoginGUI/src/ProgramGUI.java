@@ -22,6 +22,8 @@ import javax.swing.JTextField;
  * This program is a basic GUI program that uses Swing and AWT to
  * do the GUI components. This program is a  basic GUI program
  * that has a command interface with multiple commands, to make a dummy pos.
+ * 
+ * PLEASE NOTE: Card Processing does not charge cards! It is for play use only!
  */
 
 @SuppressWarnings({"serial"})
