@@ -16,6 +16,15 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+/*
+ * LoginGUI version 1 by Johnny Console
+ * 01 January 2018.
+ * This program is a basic GUI login program that uses Swing and AWT to
+ * do the GUI components. This program leads into another basic GUI program
+ * that has a command interface with multiple commands. Future plans are to 
+ * transform the program into a dummy pos, starting in version 2.
+ */
+
 @SuppressWarnings({ "serial" })
 public class LoginGUI extends JFrame {
 
