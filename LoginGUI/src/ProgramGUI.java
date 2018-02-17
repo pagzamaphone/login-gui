@@ -35,8 +35,13 @@ public class ProgramGUI extends JFrame {
 	private final int ALREADY_REG = 5;
 	private final int PERMISSIONS = 6;
 
+	//Permissons numbers for user-admin commands
+	private final int SELF = 0;
+	private final int ALL = 1;
+	
 	private static final int FRAME_WIDTH = 300;
 	private static final int FRAME_HEIGHT = 145;
+	private static int scope;
 	
 	//Private nonstatic JComponents for access in this class
 	private JTextField user;
@@ -131,12 +136,13 @@ public class ProgramGUI extends JFrame {
 		}
 		//rename user command
 		else if(cmd.getText().equals("rename")) {
-			//permissions check: if user is an admin, proceed. If not, error with a permission error.
+			//permissions check: if user is an admin, allow the user o chose a user to rename.
+			//If not, allow the user to rename themselves only.
 			if(type.equals("admin")) {
-				rename();
+				rename(ALL);
 			}
 			else {
-				error(PERMISSIONS);
+				rename(SELF);
 			}
 		}
 		//promote user command
@@ -387,21 +393,40 @@ public class ProgramGUI extends JFrame {
 		}
 		//confirm user rename gui
 		else if(toConfirm.equals("rename")) {
-			frame.dispose();
-			frame = new JFrame("User Reanmed Successfully");
-			frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
-			frame.setLocationRelativeTo(null);
-			frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
-			JPanel panel = new JPanel();
-			panel.setLayout(new GridLayout(2, 1));
-			panel.setBorder(BorderFactory.createEmptyBorder(10,10,0,10));
-			panel.add(new JLabel("The user " +oldUser.getText() + " is now " + user.getText()));
-			JButton button = new JButton("Return to Main Menu");
-			button.addActionListener(e -> frame.dispose());
-			panel.add(button);
-			frame.add(panel, BorderLayout.NORTH);
-			frame.setAlwaysOnTop(true);
-			frame.setVisible(true);
+			if(scope == ALL) {
+				frame.dispose();
+				frame = new JFrame("User Reanmed Successfully");
+				frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
+				frame.setLocationRelativeTo(null);
+				frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+				JPanel panel = new JPanel();
+				panel.setLayout(new GridLayout(2, 1));
+				panel.setBorder(BorderFactory.createEmptyBorder(10,10,0,10));
+				panel.add(new JLabel("The user " +oldUser.getText() + " is now " + user.getText()));
+				JButton button = new JButton("Return to Main Menu");
+				button.addActionListener(e -> frame.dispose());
+				panel.add(button);
+				frame.add(panel, BorderLayout.NORTH);
+				frame.setAlwaysOnTop(true);
+				frame.setVisible(true);
+			}
+			else {
+				frame.dispose();
+				frame = new JFrame("User Reanmed Successfully");
+				frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
+				frame.setLocationRelativeTo(null);
+				frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+				JPanel panel = new JPanel();
+				panel.setLayout(new GridLayout(2, 1));
+				panel.setBorder(BorderFactory.createEmptyBorder(10,10,0,10));
+				panel.add(new JLabel("You are now " + user.getText()));
+				JButton button = new JButton("Return to Main Menu");
+				button.addActionListener(e -> frame.dispose());
+				panel.add(button);
+				frame.add(panel, BorderLayout.NORTH);
+				frame.setAlwaysOnTop(true);
+				frame.setVisible(true);
+			}
 		}
 		//confirm user promotion gui
 		else if(toConfirm.equals("promote")) {
@@ -465,32 +490,57 @@ public class ProgramGUI extends JFrame {
 		frame.setVisible(true);
 	}
 	//the rename user gui is built in this method
-	private void rename() {
+	private void rename(int scope) {
+		ProgramGUI.scope = scope;
 		ProgramGUI.this.dispose();
-		frame = new JFrame("Rename a User");
-		frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
-		frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
-		frame.setLocationRelativeTo(null);
-		JPanel panel = new JPanel();
-		panel.setLayout(new GridLayout(2, 2));
-		panel.add(new JLabel("Rename which user: "));
-		oldUser = new JTextField();
-		user = new JTextField();
-		panel.add(oldUser);
-		panel.add(new JLabel("Rename to: "));
-		panel.add(user);
-		panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
-		frame.add(panel, BorderLayout.NORTH);
-		JPanel button = new JPanel();
-		JButton confirm = new JButton("Confirm Rename");
-		JButton cancel = new JButton("Cancel");
-		cancel.addActionListener(new ButtonListener());
-		confirm.addActionListener(new RenameListener());
-		button.add(confirm);
-		button.add(cancel);
-		frame.add(button, BorderLayout.SOUTH);
-		frame.setVisible(true);
-	}
+		if(scope == ALL) {
+			frame = new JFrame("Rename a User");
+			frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
+			frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+			frame.setLocationRelativeTo(null);
+			JPanel panel = new JPanel();
+			panel.setLayout(new GridLayout(2, 2));
+			panel.add(new JLabel("Rename which user: "));
+			oldUser = new JTextField();
+			user = new JTextField();
+			panel.add(oldUser);
+			panel.add(new JLabel("Rename to: "));
+			panel.add(user);
+			panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
+			frame.add(panel, BorderLayout.NORTH);
+			JPanel button = new JPanel();
+			JButton confirm = new JButton("Confirm Rename");
+			JButton cancel = new JButton("Cancel");
+			cancel.addActionListener(new ButtonListener());
+			confirm.addActionListener(new RenameListener());
+			button.add(confirm);
+			button.add(cancel);
+			frame.add(button, BorderLayout.SOUTH);
+			frame.setVisible(true);
+		}
+		else {
+			frame = new JFrame("Rename a User");
+			frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
+			frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+			frame.setLocationRelativeTo(null);
+			JPanel panel = new JPanel();
+			panel.setLayout(new GridLayout(2, 2));
+			panel.add(new JLabel("Rename to: "));
+			user = new JTextField();
+			panel.add(user);
+			panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
+			frame.add(panel, BorderLayout.NORTH);
+			JPanel button = new JPanel();
+			JButton confirm = new JButton("Confirm Rename");
+			JButton cancel = new JButton("Cancel");
+			cancel.addActionListener(new ButtonListener());
+			confirm.addActionListener(new RenameListener());
+			button.add(confirm);
+			button.add(cancel);
+			frame.add(button, BorderLayout.SOUTH);
+			frame.setVisible(true);
+		}
+}
 	//the promote user gui is built in this method
 	private void promote() {
 		ProgramGUI.this.dispose();
@@ -614,20 +664,39 @@ public class ProgramGUI extends JFrame {
 	private class RenameListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			for(int i = 0; i < users.length; i++) {
-				if(!(users[i].equals(""))) {
-					if(users[i].substring(0, users[i].indexOf(':')).equals(user.getText())) {
-						error(USER_EXISTS);
-					}
-				}
-			}
+			if(scope == ALL) {
 				for(int i = 0; i < users.length; i++) {
 					if(!(users[i].equals(""))) {
-						if(users[i].substring(0, users[i].indexOf(':')).equals(oldUser.getText())) {
-							users[i] = user.getText() + users[i].substring(users[i].indexOf(':'));
+						if(users[i].substring(0, users[i].indexOf(':')).equals(user.getText())) {
+							error(USER_EXISTS);
 						}
 					}
 				}
+					for(int i = 0; i < users.length; i++) {
+						if(!(users[i].equals(""))) {
+							if(users[i].substring(0, users[i].indexOf(':')).equals(oldUser.getText())) {
+								users[i] = user.getText() + users[i].substring(users[i].indexOf(':'));
+							}
+						}
+					}
+			}
+			else {
+				for(int i = 0; i < users.length; i++) {
+					if(!(users[i].equals(""))) {
+						if(users[i].substring(0, users[i].indexOf(':')).equals(user.getText())) {
+							error(USER_EXISTS);
+						}
+					}
+				}
+					for(int i = 0; i < users.length; i++) {
+						if(!(users[i].equals(""))) {
+							if(users[i].substring(0, users[i].indexOf(':')).equals(logged)) {
+								users[i] = user.getText() + users[i].substring(users[i].indexOf(':'));
+								logged = user.getText();
+							}
+						}
+					}
+			}
 			try {
 				repopFile();
 				confirm("rename");
