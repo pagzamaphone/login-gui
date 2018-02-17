@@ -15,6 +15,15 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+/*
+ * ProgramGUI version 1 by Johnny Console
+ * 01 January 2018.
+ * This program is a basic GUI program that uses Swing and AWT to
+ * do the GUI components. This program is a  basic GUI program
+ * that has a command interface with multiple commands. Future plans are to 
+ * transform the program into a dummy pos, starting in version 2.
+ */
+
 @SuppressWarnings({"serial"})
 public class ProgramGUI extends JFrame {
 
@@ -43,6 +52,7 @@ public class ProgramGUI extends JFrame {
 	private static String type;
 	private int index;
 	
+	//public constructor for the initial login program to activate the program
 	public ProgramGUI(String type) {
 		ProgramGUI.type = type;
 		setTitle("Command Window");
@@ -67,7 +77,7 @@ public class ProgramGUI extends JFrame {
 		setVisible(true);
 		
 	}
-	
+	//private constructor for use within the program
 	private ProgramGUI() {
 		setTitle("Command Window");
 		setSize(FRAME_WIDTH, FRAME_HEIGHT);
@@ -92,9 +102,15 @@ public class ProgramGUI extends JFrame {
 		
 	}
 	
+	//check the command after the button is pushed on the main interface
 	private void commandCheck() {
-		
+		//add user command
 		if(cmd.getText().toLowerCase().equals("adduser")) {
+			/*
+			 * permissions check: if user is an admin, proceed. If not, error with a permission error.
+			 * There will be more user level commands added in version 2, like changing rename to allow a
+			 * user to rename themselves, but not any other user. Admins can still rename all users.
+			 */
 			if(type.equals("admin")) {
 				addUser();
 			}
@@ -102,7 +118,9 @@ public class ProgramGUI extends JFrame {
 				error(PERMISSIONS);
 			}
 		}
+		//delete user command
 		else if(cmd.getText().toLowerCase().equals("deluser")) {
+			//permissions check: if user is an admin, proceed. If not, error with a permission error.
 			if(type.equals("admin")) {
 				delUser();
 			}
@@ -110,7 +128,9 @@ public class ProgramGUI extends JFrame {
 				error(PERMISSIONS);
 			};
 		}
+		//rename user command
 		else if(cmd.getText().equals("rename")) {
+			//permissions check: if user is an admin, proceed. If not, error with a permission error.
 			if(type.equals("admin")) {
 				rename();
 			}
@@ -118,7 +138,9 @@ public class ProgramGUI extends JFrame {
 				error(PERMISSIONS);
 			}
 		}
+		//promote user command
 		else if(cmd.getText().equals("promote")) {
+			//permissions check: if user is an admin, proceed. If not, error with a permission error.
 			if(type.equals("admin")) {
 				promote();
 			}
@@ -126,7 +148,9 @@ public class ProgramGUI extends JFrame {
 				error(PERMISSIONS);
 			}
 		}
+		//demote user command
 		else if(cmd.getText().equals("demote")) {
+			//permissions check: if user is an admin, proceed. If not, error with a permission error.
 			if(type.equals("admin")) {
 				demote();
 			}
@@ -134,12 +158,15 @@ public class ProgramGUI extends JFrame {
 				error(PERMISSIONS);
 			}
 		}
+		//if the command that was entered does not match any command, return an error.
 		else {
 			error(CMD_NOT_FOUND);
 		}
 	}
 	
+	//gui for the adduser command is built in this method.
 	private void addUser() {
+		//check for the user limit, and if it is reached, return an error.
 		if(!(users[users.length-1].equals(""))) {
 			error(USER_LIMIT_REACHED);
 			ProgramGUI.this.dispose();
@@ -173,7 +200,9 @@ public class ProgramGUI extends JFrame {
 		}
 	}
 	
+	//all errors are dispached from this method
 	private void error(int error) {
+		//user limit reached error gui
 		if(error == USER_LIMIT_REACHED) {
 			frame.dispose();
 			frame = new JFrame("Error: User Limit Reached");
@@ -190,6 +219,7 @@ public class ProgramGUI extends JFrame {
 			frame.add(panel, BorderLayout.NORTH);
 			frame.setVisible(true);
 		}
+		//user exists error gui
 		else if(error == USER_EXISTS) {
 			frame.dispose();
 			frame = new JFrame("Error: User Exists");
@@ -206,6 +236,7 @@ public class ProgramGUI extends JFrame {
 			frame.add(panel, BorderLayout.NORTH);
 			frame.setVisible(true);
 		}
+		//user not found error gui
 		else if(error == USER_NOT_FOUND) {
 			frame.dispose();
 			frame = new JFrame("Error: User Not Found");
@@ -222,6 +253,7 @@ public class ProgramGUI extends JFrame {
 			frame.add(panel, BorderLayout.NORTH);
 			frame.setVisible(true);
 		}
+		//command not found error gui
 		else if(error == CMD_NOT_FOUND) {
 			ProgramGUI.this.dispose();
 			frame = new JFrame("Error: Invalid Command");
@@ -238,6 +270,7 @@ public class ProgramGUI extends JFrame {
 			frame.add(panel, BorderLayout.NORTH);
 			frame.setVisible(true);
 		}
+		//user is already admin error gui
 		else if(error == ALREADY_ADMIN) {
 			frame.dispose();
 			frame = new JFrame("Error: Promotion");
@@ -254,6 +287,7 @@ public class ProgramGUI extends JFrame {
 			frame.add(panel, BorderLayout.NORTH);
 			frame.setVisible(true);
 		}
+		//user is already regular error gui
 		else if(error == ALREADY_REG) {
 			frame.dispose();
 			frame = new JFrame("Error: Demotion");
@@ -270,7 +304,7 @@ public class ProgramGUI extends JFrame {
 			frame.add(panel, BorderLayout.NORTH);
 			frame.setVisible(true);
 		}
-		
+		//permissions error gui
 		else if(error == PERMISSIONS) {
 			ProgramGUI.this.dispose();
 			frame = new JFrame("Error: Permissions");
@@ -288,7 +322,7 @@ public class ProgramGUI extends JFrame {
 			frame.setVisible(true);
 		}
 	}
-	
+	//this method returns the index of the next available user spot in the array
 	private int nextUserIndex() {
 		int index = 1;
 		for(int i = 0; i < users.length; i++) {
@@ -300,6 +334,7 @@ public class ProgramGUI extends JFrame {
 		return index;
 	}
 	
+	//this method repopulates the credentials file
 	public void repopFile() throws FileNotFoundException {
 		PrintWriter writer = new PrintWriter(file.getName());
 		for(int i = 0; i < users.length; i++) {
@@ -311,7 +346,9 @@ public class ProgramGUI extends JFrame {
 		writer.close();
 	}
 	
+	//all operations are confirmed from within this method
 	public void confirm(String toConfirm) {
+		//confirm user addition gui
 		if(toConfirm.equals("add")) {
 			frame.dispose();
 			frame = new JFrame("User Added Successfully");
@@ -329,6 +366,7 @@ public class ProgramGUI extends JFrame {
 			frame.setAlwaysOnTop(true);
 			frame.setVisible(true);
 		}
+		//confirm user deleted gui
 		else if(toConfirm.equals("del")) {
 			frame.dispose();
 			frame = new JFrame("User Deleted Successfully");
@@ -346,6 +384,7 @@ public class ProgramGUI extends JFrame {
 			frame.setAlwaysOnTop(true);
 			frame.setVisible(true);
 		}
+		//confirm user rename gui
 		else if(toConfirm.equals("rename")) {
 			frame.dispose();
 			frame = new JFrame("User Reanmed Successfully");
@@ -363,6 +402,7 @@ public class ProgramGUI extends JFrame {
 			frame.setAlwaysOnTop(true);
 			frame.setVisible(true);
 		}
+		//confirm user promotion gui
 		else if(toConfirm.equals("promote")) {
 			frame.dispose();
 			frame = new JFrame("User Promoted Successfully");
@@ -380,6 +420,7 @@ public class ProgramGUI extends JFrame {
 			frame.setAlwaysOnTop(true);
 			frame.setVisible(true);
 		}
+		//confirm user demotion gui
 		else if(toConfirm.equals("demote")) {
 			frame.dispose();
 			frame = new JFrame("User Demoted Successfully");
@@ -398,7 +439,7 @@ public class ProgramGUI extends JFrame {
 			frame.setVisible(true);
 		}
 	}
-	
+	//delete user gui is built from this method
 	public void delUser() {
 		ProgramGUI.this.dispose();
 		frame = new JFrame("Delete a User");
@@ -422,7 +463,7 @@ public class ProgramGUI extends JFrame {
 		frame.add(button, BorderLayout.SOUTH);
 		frame.setVisible(true);
 	}
-	
+	//the rename user gui is built in this method
 	private void rename() {
 		ProgramGUI.this.dispose();
 		frame = new JFrame("Rename a User");
@@ -449,7 +490,7 @@ public class ProgramGUI extends JFrame {
 		frame.add(button, BorderLayout.SOUTH);
 		frame.setVisible(true);
 	}
-	
+	//the promote user gui is built in this method
 	private void promote() {
 		ProgramGUI.this.dispose();
 		frame = new JFrame("Promote a User");
@@ -473,7 +514,7 @@ public class ProgramGUI extends JFrame {
 		frame.add(button, BorderLayout.SOUTH);
 		frame.setVisible(true);
 	}
-	
+	//the demote user gui is built in this method
 	private void demote() {
 		ProgramGUI.this.dispose();
 		frame = new JFrame("Demote a User");
@@ -497,6 +538,7 @@ public class ProgramGUI extends JFrame {
 		frame.add(button, BorderLayout.SOUTH);
 		frame.setVisible(true);
 	}
+	//action listener for the ok button in the command interface
 	private class OKListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -504,6 +546,7 @@ public class ProgramGUI extends JFrame {
 		}
 	}
 	
+	//listener for the logout button on the command interface
 	private class LogoutListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -514,7 +557,7 @@ public class ProgramGUI extends JFrame {
 			catch (IOException ex) {}
 		}
 	}
-	
+	//listener for all cancel buttons in all commands
 	private class ButtonListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -522,7 +565,7 @@ public class ProgramGUI extends JFrame {
 			new ProgramGUI();
 		}
 	}
-	
+	//listener for adding a user
 	private class AddListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -543,7 +586,7 @@ public class ProgramGUI extends JFrame {
 			} catch (FileNotFoundException ex) {}
 		}
 	}
-	
+	//listener for deleting a user
 	private class DelListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -566,7 +609,7 @@ public class ProgramGUI extends JFrame {
 			}
 		}
 	}
-	
+	//listener for renaming a user
 	private class RenameListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -591,7 +634,7 @@ public class ProgramGUI extends JFrame {
 			} catch(FileNotFoundException ex) {}
 		}
 	}
-	
+	//listener for promoting a user
 	private class PromoteListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -617,7 +660,7 @@ public class ProgramGUI extends JFrame {
 			}
 		}
 	}
-	
+	//listener for demoting a user
 	private class DemoteListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
