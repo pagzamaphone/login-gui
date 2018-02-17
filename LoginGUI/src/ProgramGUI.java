@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
+import java.util.Calendar;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -34,6 +35,8 @@ public class ProgramGUI extends JFrame {
 	private final int ALREADY_ADMIN = 4;
 	private final int ALREADY_REG = 5;
 	private final int PERMISSIONS = 6;
+	private final int EXPIRED = 7;
+	private String today = Calendar.MONTH + "/" + Calendar.DAY_OF_MONTH + "/" + Calendar.YEAR;
 
 	//Permissons numbers for user-admin commands
 	private final int SELF = 0;
@@ -48,6 +51,9 @@ public class ProgramGUI extends JFrame {
 	private JTextField pass;
 	private JTextField oldUser;
 	private JTextField cmd;
+	private JTextField purch;
+	private JTextField card;
+	private JTextField expiry;
 	private JFrame frame;
 	
 	//Private static variables for use in this class
@@ -164,6 +170,10 @@ public class ProgramGUI extends JFrame {
 			else {
 				error(PERMISSIONS);
 			}
+		}
+		//the rest of the commands are user level, no permission checking
+		else if(cmd.getText().equals("ccprocess")) {
+			ccprocess();
 		}
 		//if the command that was entered does not match any command, return an error.
 		else {
@@ -589,6 +599,39 @@ public class ProgramGUI extends JFrame {
 		frame.add(button, BorderLayout.SOUTH);
 		frame.setVisible(true);
 	}
+	//the card processing gui is build in this method
+	private void ccprocess() {
+		ProgramGUI.this.dispose();
+		frame = new JFrame("Demote a User");
+		frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
+		frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+		frame.setLocationRelativeTo(null);
+		JPanel panel = new JPanel();
+		panel.setLayout(new GridLayout(4, 2));
+		panel.add(new JLabel("Purchase amount: "));
+		purch = new JTextField();
+		panel.add(purch);
+		panel.add(new JLabel("Enter card number: "));
+		card = new JTextField();
+		panel.add(card);
+		panel.add(new JLabel("Enter the expiry (MM/DD/YYYY): "));
+		expiry = new JTextField();
+		panel.add(expiry);
+		panel.add(new JLabel("Enter the CVV: "));
+		panel.add(new JTextField());
+		panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
+		frame.add(panel, BorderLayout.NORTH);
+		JPanel button = new JPanel();
+		JButton confirm = new JButton("Confirm Demotion");
+		JButton cancel = new JButton("Cancel");
+		cancel.addActionListener(new ButtonListener());
+		confirm.addActionListener(new ccListener());
+		button.add(confirm);
+		button.add(cancel);
+		frame.add(button, BorderLayout.SOUTH);
+		frame.setVisible(true);
+	}
+	
 	//action listener for the ok button in the command interface
 	private class OKListener implements ActionListener {
 		@Override
@@ -754,6 +797,14 @@ public class ProgramGUI extends JFrame {
 		else {
 			error(USER_NOT_FOUND);			
 			}
+		}
+	}
+	
+	//listener for processng card payments
+	private class ccListener implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			
 		}
 	}
 }
