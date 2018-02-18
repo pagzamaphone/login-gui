@@ -1,4 +1,5 @@
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -38,7 +39,6 @@ public class ProgramGUI extends JFrame {
 	private final int ALREADY_REG = 5;
 	private final int PERMISSIONS = 6;
 	private final int EXPIRED = 7;
-	private String today = Calendar.MONTH + "/" + Calendar.DAY_OF_MONTH + "/" + Calendar.YEAR;
 
 	//Permissons numbers for user-admin commands
 	private final int SELF = 0;
@@ -56,6 +56,7 @@ public class ProgramGUI extends JFrame {
 	private JTextField purch;
 	private JTextField card;
 	private JTextField expiry;
+	private JTextField cvv;
 	private JFrame frame;
 	
 	//Private static variables for use in this class
@@ -340,6 +341,23 @@ public class ProgramGUI extends JFrame {
 			frame.add(panel, BorderLayout.NORTH);
 			frame.setVisible(true);
 		}
+		//card expired gui
+		else if(error == EXPIRED) {
+			frame.dispose();
+			frame = new JFrame("Error: Card Expired");
+			frame.setSize(390, FRAME_HEIGHT);
+			frame.setLocationRelativeTo(null);
+			frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+			JPanel panel = new JPanel();
+			panel.setLayout(new GridLayout(2, 1));
+			panel.setBorder(BorderFactory.createEmptyBorder(10,10,0,10));
+			panel.add(new JLabel("The card " + card.getText() + " expired on " + expiry.getText()));
+			JButton button = new JButton("Return to Main Menu");
+			button.addActionListener(new ButtonListener());
+			panel.add(button);
+			frame.add(panel, BorderLayout.NORTH);
+			frame.setVisible(true);
+		}
 	}
 	//this method returns the index of the next available user spot in the array
 	private int nextUserIndex() {
@@ -476,6 +494,24 @@ public class ProgramGUI extends JFrame {
 			frame.setAlwaysOnTop(true);
 			frame.setVisible(true);
 		}
+		//confirm cc payment
+		else if(toConfirm.equals("ccpayment")) {
+			frame.dispose();
+			frame = new JFrame("Payment Successful");
+			frame.setSize(390, FRAME_HEIGHT);
+			frame.setLocationRelativeTo(null);
+			frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+			JPanel panel = new JPanel();
+			panel.setLayout(new GridLayout(2, 1));
+			panel.setBorder(BorderFactory.createEmptyBorder(10,10,0,10));
+			panel.add(new JLabel("The payment of $" + purch.getText() + " on " + card.getText() + " is successfull"));
+			JButton button = new JButton("Return to Main Menu");
+			button.addActionListener(e -> frame.dispose());
+			panel.add(button);
+			frame.add(panel, BorderLayout.NORTH);
+			frame.setAlwaysOnTop(true);
+			frame.setVisible(true);
+		}
 	}
 	//delete user gui is built from this method
 	public void delUser() {
@@ -604,8 +640,8 @@ public class ProgramGUI extends JFrame {
 	//the card processing gui is build in this method
 	private void ccprocess() {
 		ProgramGUI.this.dispose();
-		frame = new JFrame("Demote a User");
-		frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
+		frame = new JFrame("Process Payment: Credit Card");
+		frame.setSize(390, 175);
 		frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		frame.setLocationRelativeTo(null);
 		JPanel panel = new JPanel();
@@ -616,15 +652,16 @@ public class ProgramGUI extends JFrame {
 		panel.add(new JLabel("Enter card number: "));
 		card = new JTextField();
 		panel.add(card);
-		panel.add(new JLabel("Enter the expiry (MM/DD/YYYY): "));
+		panel.add(new JLabel("Enter the expiry (MM/YYYY): "));
 		expiry = new JTextField();
 		panel.add(expiry);
 		panel.add(new JLabel("Enter the CVV: "));
-		panel.add(new JTextField());
+		cvv = new JTextField();
+		panel.add(cvv);
 		panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
 		frame.add(panel, BorderLayout.NORTH);
 		JPanel button = new JPanel();
-		JButton confirm = new JButton("Confirm Demotion");
+		JButton confirm = new JButton("Confirm Payment");
 		JButton cancel = new JButton("Cancel");
 		cancel.addActionListener(new ButtonListener());
 		confirm.addActionListener(new ccListener());
@@ -806,7 +843,34 @@ public class ProgramGUI extends JFrame {
 	private class ccListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			
+			if(card.getText().equals("") || expiry.getText().equals("") || purch.getText().equals("") || cvv.getText().equals("")) {
+				cvv.setBackground(Color.PINK);
+				card.setBackground(Color.PINK);
+				expiry.setBackground(Color.PINK);
+				purch.setBackground(Color.PINK);
+				cvv.repaint();
+				card.repaint();
+				expiry.repaint();
+				purch.repaint();
+			}
+			else {
+				cvv.setBackground(Color.WHITE);
+				card.setBackground(Color.WHITE);
+				expiry.setBackground(Color.WHITE);
+				purch.setBackground(Color.WHITE);
+				cvv.repaint();
+				card.repaint();
+				expiry.repaint();
+				purch.repaint();
+				
+				if(Integer.parseInt(expiry.getText().substring(expiry.getText().indexOf('/') + 1)) < Calendar.YEAR && 
+						Integer.parseInt(expiry.getText().substring(0, expiry.getText().indexOf('/'))) < Calendar.MONTH) {
+					error(EXPIRED);
+				}
+				else {
+					confirm("ccpayment");
+				}
+			}
 		}
 	}
 }
