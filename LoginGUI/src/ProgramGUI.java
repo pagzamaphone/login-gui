@@ -3,6 +3,9 @@ import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -54,6 +57,8 @@ public class ProgramGUI extends JFrame {
 	private JTextField oldUser;
 	private JTextField cmd;
 	private JTextField purch;
+	private JTextField change;
+	private JTextField tender;
 	private JTextField card;
 	private JTextField expiry;
 	private JTextField cvv;
@@ -177,6 +182,9 @@ public class ProgramGUI extends JFrame {
 		//the rest of the commands are user level, no permission checking
 		else if(cmd.getText().equals("ccprocess")) {
 			ccprocess();
+		}
+		else if(cmd.getText().equals("cprocess")) {
+			cprocess();
 		}
 		//if the command that was entered does not match any command, return an error.
 		else {
@@ -512,6 +520,24 @@ public class ProgramGUI extends JFrame {
 			frame.setAlwaysOnTop(true);
 			frame.setVisible(true);
 		}
+		//confirm cash payment
+		else if(toConfirm.equals("cpayment")) {
+			frame.dispose();
+			frame = new JFrame("Payment Successful");
+			frame.setSize(390, FRAME_HEIGHT);
+			frame.setLocationRelativeTo(null);
+			frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+			JPanel panel = new JPanel();
+			panel.setLayout(new GridLayout(2, 1));
+			panel.setBorder(BorderFactory.createEmptyBorder(10,10,0,10));
+			panel.add(new JLabel("The payment of $" + purch.getText() + " is successfull"));
+			JButton button = new JButton("Return to Main Menu");
+			button.addActionListener(e -> frame.dispose());
+			panel.add(button);
+			frame.add(panel, BorderLayout.NORTH);
+			frame.setAlwaysOnTop(true);
+			frame.setVisible(true);
+		}
 	}
 	//delete user gui is built from this method
 	public void delUser() {
@@ -665,6 +691,43 @@ public class ProgramGUI extends JFrame {
 		JButton cancel = new JButton("Cancel");
 		cancel.addActionListener(new ButtonListener());
 		confirm.addActionListener(new ccListener());
+		button.add(confirm);
+		button.add(cancel);
+		frame.add(button, BorderLayout.SOUTH);
+		frame.setVisible(true);
+	}
+	
+	private void cprocess() {
+		ProgramGUI.this.dispose();
+		frame = new JFrame("Process Payment: Cash");
+		frame.setSize(FRAME_WIDTH, FRAME_HEIGHT + 10);
+		frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+		frame.setLocationRelativeTo(null);
+		JPanel panel = new JPanel();
+		panel.setLayout(new GridLayout(4, 2));
+		panel.add(new JLabel("Purchase amount: "));
+		purch = new JTextField();
+		panel.add(purch);
+		panel.add(new JLabel("Amount Tendered: "));
+		tender = new JTextField();
+		panel.add(tender);
+		panel.add(new JLabel("Change Due: "));
+		change = new JTextField();
+		change.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusGained(FocusEvent arg0) {
+				double ch = Double.parseDouble(tender.getText()) - Double.parseDouble(purch.getText());
+				change.setText((int)(ch*100) / 100.0 + "");
+			}
+		});
+		panel.add(change);
+		panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
+		frame.add(panel, BorderLayout.NORTH);
+		JPanel button = new JPanel();
+		JButton confirm = new JButton("Confirm Payment");
+		JButton cancel = new JButton("Cancel");
+		cancel.addActionListener(new ButtonListener());
+		confirm.addActionListener(new cListener());
 		button.add(confirm);
 		button.add(cancel);
 		frame.add(button, BorderLayout.SOUTH);
@@ -870,6 +933,26 @@ public class ProgramGUI extends JFrame {
 				else {
 					confirm("ccpayment");
 				}
+			}
+		}
+	}
+	
+	
+	private class cListener implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if(purch.getText().equals("") || tender.getText().equals("")) {
+				purch.setBackground(Color.PINK);
+				tender.setBackground(Color.PINK);
+				purch.repaint();
+				tender.repaint();
+			}
+			else {
+				purch.setBackground(Color.WHITE);
+				tender.setBackground(Color.WHITE);
+				purch.repaint();
+				tender.repaint();
+				confirm("cpayment");
 			}
 		}
 	}
