@@ -149,7 +149,7 @@ public class ProgramGUI extends JFrame {
 			};
 		}
 		//rename user command
-		else if(cmd.getText().equals("rename")) {
+		else if(cmd.getText().toLowerCase().equals("rename")) {
 			//permissions check: if user is an admin, allow the user o chose a user to rename.
 			//If not, allow the user to rename themselves only.
 			if(type.equals("admin")) {
@@ -160,7 +160,7 @@ public class ProgramGUI extends JFrame {
 			}
 		}
 		//promote user command
-		else if(cmd.getText().equals("promote")) {
+		else if(cmd.getText().toLowerCase().equals("promote")) {
 			//permissions check: if user is an admin, proceed. If not, error with a permission error.
 			if(type.equals("admin")) {
 				promote();
@@ -170,7 +170,7 @@ public class ProgramGUI extends JFrame {
 			}
 		}
 		//demote user command
-		else if(cmd.getText().equals("demote")) {
+		else if(cmd.getText().toLowerCase().equals("demote")) {
 			//permissions check: if user is an admin, proceed. If not, error with a permission error.
 			if(type.equals("admin")) {
 				demote();
@@ -180,14 +180,17 @@ public class ProgramGUI extends JFrame {
 			}
 		}
 		//the rest of the commands are user level, no permission checking
-		else if(cmd.getText().equals("ccprocess")) {
+		else if(cmd.getText().toLowerCase().equals("ccprocess")) {
 			ccprocess();
 		}
-		else if(cmd.getText().equals("cprocess")) {
+		else if(cmd.getText().toLowerCase().equals("cprocess")) {
 			cprocess();
 		}
-		else if(cmd.getText().equals("opentill")) {
+		else if(cmd.getText().toLowerCase().equals("opentill")) {
 			openTill();
+		}
+		else if(cmd.getText().toLowerCase().equals("closetill")) {
+			closeTill();
 		}
 		//if the command that was entered does not match any command, return an error.
 		else {
@@ -760,6 +763,33 @@ public class ProgramGUI extends JFrame {
 				throw new TillOpenException();
 			}
 		} catch(TillOpenException e) {
+			new ProgramGUI();
+		}
+	}
+	
+	private void closeTill() {
+		ProgramGUI.this.dispose();
+		try {
+			if(isTillOpen) {
+				frame = new JFrame("Till Closed");
+				frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
+				frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+				frame.setLocationRelativeTo(null);
+				JPanel panel = new JPanel();
+				panel.setLayout(new GridLayout(2,1));
+				panel.add(new JLabel("Your Till is now closed"));
+				JButton cancel = new JButton("OK");
+				cancel.addActionListener(new ButtonListener());
+				panel.add(cancel);
+				panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
+				frame.add(panel, BorderLayout.NORTH);
+				isTillOpen = false;
+				frame.setVisible(true);
+			}
+			else {
+				throw new TillClosedException();
+			}
+		} catch(TillClosedException e) {
 			new ProgramGUI();
 		}
 	}
