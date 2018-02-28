@@ -192,6 +192,9 @@ public class ProgramGUI extends JFrame {
 		else if(cmd.getText().toLowerCase().equals("closetill")) {
 			closeTill();
 		}
+		else if(cmd.getText().toLowerCase().equals("opendrawer")) {
+			openDrawer();
+		}
 		//if the command that was entered does not match any command, return an error.
 		else {
 			error(CMD_NOT_FOUND);
@@ -790,6 +793,27 @@ public class ProgramGUI extends JFrame {
 				throw new TillClosedException();
 			}
 		} catch(TillClosedException e) {
+			new ProgramGUI();
+		}
+	}
+	
+	private void openDrawer() {
+		ProgramGUI.this.dispose();
+		try {
+			if(isTillOpen) {
+				frame = new JFrame("Drawer Open");
+				frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
+				frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+				frame.setLocationRelativeTo(null);
+				JButton cancel = new JButton("Close Drawer");
+				cancel.addActionListener(new ButtonListener());
+				frame.add(cancel);
+				frame.setVisible(true);
+			}
+			else {
+				throw new TillNotOpenException();
+			}
+		} catch(TillNotOpenException e) {
 			new ProgramGUI();
 		}
 	}
