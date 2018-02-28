@@ -69,6 +69,7 @@ public class ProgramGUI extends JFrame {
 	private static String logged = LoginGUI.logged;
 	private static String type;
 	private int index;
+	private static boolean isTillOpen = false;
 	
 	//public constructor for the initial login program to activate the program
 	public ProgramGUI(String type, String logged) {
@@ -184,6 +185,9 @@ public class ProgramGUI extends JFrame {
 		}
 		else if(cmd.getText().equals("cprocess")) {
 			cprocess();
+		}
+		else if(cmd.getText().equals("opentill")) {
+			openTill();
 		}
 		//if the command that was entered does not match any command, return an error.
 		else {
@@ -731,6 +735,33 @@ public class ProgramGUI extends JFrame {
 		button.add(cancel);
 		frame.add(button, BorderLayout.SOUTH);
 		frame.setVisible(true);
+	}
+	
+	private void openTill() {
+		ProgramGUI.this.dispose();
+		try {
+			if(!isTillOpen) {
+				frame = new JFrame("Till Opened");
+				frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
+				frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+				frame.setLocationRelativeTo(null);
+				JPanel panel = new JPanel();
+				panel.setLayout(new GridLayout(2,1));
+				panel.add(new JLabel("Your Till is now Open"));
+				JButton cancel = new JButton("OK");
+				cancel.addActionListener(new ButtonListener());
+				panel.add(cancel);
+				panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
+				frame.add(panel, BorderLayout.NORTH);
+				isTillOpen = true;
+				frame.setVisible(true);
+			}
+			else {
+				throw new TillOpenException();
+			}
+		} catch(TillOpenException e) {
+			new ProgramGUI();
+		}
 	}
 	
 	//action listener for the ok button in the command interface

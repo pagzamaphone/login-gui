@@ -31,7 +31,7 @@ public class TillClosedException extends Exception{
 		});
 		panel.add(button);
 		frame.add(panel, BorderLayout.NORTH);
-		frame.setSize(FRAME_HEIGHT, FRAME_WIDTH);
+		frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
 		frame.setLocationRelativeTo(null);
 		frame.setAlwaysOnTop(true);
 		frame.setVisible(true);
