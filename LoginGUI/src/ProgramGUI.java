@@ -13,10 +13,12 @@ import java.util.Arrays;
 import java.util.Calendar;
 
 import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
 /*
@@ -75,7 +77,7 @@ public class ProgramGUI extends JFrame {
 	public ProgramGUI(String type, String logged) {
 		ProgramGUI.type = type;
 		ProgramGUI.logged = logged;
-		setTitle("Command Window");
+		setTitle("Till Closed");
 		setSize(FRAME_WIDTH, FRAME_HEIGHT);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -99,7 +101,6 @@ public class ProgramGUI extends JFrame {
 	}
 	//private constructor for use within the program
 	private ProgramGUI() {
-		setTitle("Command Window");
 		setSize(FRAME_WIDTH, FRAME_HEIGHT);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -119,7 +120,12 @@ public class ProgramGUI extends JFrame {
 		button.add(logout);
 		add(button, BorderLayout.SOUTH);
 		setVisible(true);
-		
+		if(isTillOpen) {
+			setTitle("Till Open");
+		}
+		else {
+			setTitle("Till Closed");
+		}
 	}
 	
 	//check the command after the button is pushed on the main interface
@@ -194,6 +200,9 @@ public class ProgramGUI extends JFrame {
 		}
 		else if(cmd.getText().toLowerCase().equals("opendrawer")) {
 			openDrawer();
+		}
+		else if(cmd.getText().toLowerCase().equals("sale")) {
+			sale();
 		}
 		//if the command that was entered does not match any command, return an error.
 		else {
@@ -523,7 +532,13 @@ public class ProgramGUI extends JFrame {
 			panel.setBorder(BorderFactory.createEmptyBorder(10,10,0,10));
 			panel.add(new JLabel("The payment of $" + purch.getText() + " on " + card.getText() + " is successfull"));
 			JButton button = new JButton("Return to Main Menu");
-			button.addActionListener(e -> frame.dispose());
+			button.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					frame.dispose();
+					openDrawer();
+				}
+			});
 			panel.add(button);
 			frame.add(panel, BorderLayout.NORTH);
 			frame.setAlwaysOnTop(true);
@@ -541,7 +556,13 @@ public class ProgramGUI extends JFrame {
 			panel.setBorder(BorderFactory.createEmptyBorder(10,10,0,10));
 			panel.add(new JLabel("The payment of $" + purch.getText() + " is successfull"));
 			JButton button = new JButton("Return to Main Menu");
-			button.addActionListener(e -> frame.dispose());
+			button.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					frame.dispose();
+					openDrawer();
+				}
+			});
 			panel.add(button);
 			frame.add(panel, BorderLayout.NORTH);
 			frame.setAlwaysOnTop(true);
@@ -675,72 +696,93 @@ public class ProgramGUI extends JFrame {
 	//the card processing gui is build in this method
 	private void ccprocess() {
 		ProgramGUI.this.dispose();
-		frame = new JFrame("Process Payment: Credit Card");
-		frame.setSize(390, 175);
-		frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
-		frame.setLocationRelativeTo(null);
-		JPanel panel = new JPanel();
-		panel.setLayout(new GridLayout(4, 2));
-		panel.add(new JLabel("Purchase amount: "));
-		purch = new JTextField();
-		panel.add(purch);
-		panel.add(new JLabel("Enter card number: "));
-		card = new JTextField();
-		panel.add(card);
-		panel.add(new JLabel("Enter the expiry (MM/YYYY): "));
-		expiry = new JTextField();
-		panel.add(expiry);
-		panel.add(new JLabel("Enter the CVV: "));
-		cvv = new JTextField();
-		panel.add(cvv);
-		panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
-		frame.add(panel, BorderLayout.NORTH);
-		JPanel button = new JPanel();
-		JButton confirm = new JButton("Confirm Payment");
-		JButton cancel = new JButton("Cancel");
-		cancel.addActionListener(new ButtonListener());
-		confirm.addActionListener(new ccListener());
-		button.add(confirm);
-		button.add(cancel);
-		frame.add(button, BorderLayout.SOUTH);
-		frame.setVisible(true);
+		frame.dispose();
+		try {
+			if(isTillOpen) {
+				frame = new JFrame("Process Payment: Credit Card");
+				frame.setSize(390, 175);
+				frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+				frame.setLocationRelativeTo(null);
+				JPanel panel = new JPanel();
+				panel.setLayout(new GridLayout(4, 2));
+				panel.add(new JLabel("Purchase amount: "));
+				purch = new JTextField();
+				panel.add(purch);
+				panel.add(new JLabel("Enter card number: "));
+				card = new JTextField();
+				panel.add(card);
+				panel.add(new JLabel("Enter the expiry (MM/YYYY): "));
+				expiry = new JTextField();
+				panel.add(expiry);
+				panel.add(new JLabel("Enter the CVV: "));
+				cvv = new JTextField();
+				panel.add(cvv);
+				panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
+				frame.add(panel, BorderLayout.NORTH);
+				JPanel button = new JPanel();
+				JButton confirm = new JButton("Confirm Payment");
+				JButton cancel = new JButton("Cancel");
+				cancel.addActionListener(new ButtonListener());
+				confirm.addActionListener(new ccListener());
+				button.add(confirm);
+				button.add(cancel);
+				frame.add(button, BorderLayout.SOUTH);
+				frame.setVisible(true);
+			}
+			else {
+				throw new TillNotOpenException();
+			}
+		} catch(TillNotOpenException e) {
+			new ProgramGUI();
+		}
 	}
 	
 	private void cprocess() {
 		ProgramGUI.this.dispose();
-		frame = new JFrame("Process Payment: Cash");
-		frame.setSize(FRAME_WIDTH, FRAME_HEIGHT + 10);
-		frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
-		frame.setLocationRelativeTo(null);
-		JPanel panel = new JPanel();
-		panel.setLayout(new GridLayout(4, 2));
-		panel.add(new JLabel("Purchase amount: "));
-		purch = new JTextField();
-		panel.add(purch);
-		panel.add(new JLabel("Amount Tendered: "));
-		tender = new JTextField();
-		panel.add(tender);
-		panel.add(new JLabel("Change Due: "));
-		change = new JTextField();
-		change.addFocusListener(new FocusAdapter() {
-			@Override
-			public void focusGained(FocusEvent arg0) {
-				double ch = Double.parseDouble(tender.getText()) - Double.parseDouble(purch.getText());
-				change.setText((int)(ch*100) / 100.0 + "");
+		frame.dispose();
+		try {
+			if(isTillOpen) {
+				frame = new JFrame("Process Payment: Cash");
+				frame.setSize(FRAME_WIDTH, FRAME_HEIGHT + 10);
+				frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+				frame.setLocationRelativeTo(null);
+				JPanel panel = new JPanel();
+				panel.setLayout(new GridLayout(4, 2));
+				panel.add(new JLabel("Purchase amount: "));
+				purch = new JTextField();
+				panel.add(purch);
+				panel.add(new JLabel("Amount Tendered: "));
+				tender = new JTextField();
+				panel.add(tender);
+				panel.add(new JLabel("Change Due: "));
+				change = new JTextField();
+				change.addFocusListener(new FocusAdapter() {
+					@Override
+					public void focusGained(FocusEvent arg0) {
+						double ch = Double.parseDouble(tender.getText()) - Double.parseDouble(purch.getText());
+						change.setText((int)(ch*100) / 100.0 + "");
+					}
+				});
+				panel.add(change);
+				panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
+				frame.add(panel, BorderLayout.NORTH);
+				JPanel button = new JPanel();
+				JButton confirm = new JButton("Confirm Payment");
+				JButton cancel = new JButton("Cancel");
+				cancel.addActionListener(new ButtonListener());
+				confirm.addActionListener(new cListener());
+				button.add(confirm);
+				button.add(cancel);
+				frame.add(button, BorderLayout.SOUTH);
+				frame.setVisible(true);
 			}
-		});
-		panel.add(change);
-		panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
-		frame.add(panel, BorderLayout.NORTH);
-		JPanel button = new JPanel();
-		JButton confirm = new JButton("Confirm Payment");
-		JButton cancel = new JButton("Cancel");
-		cancel.addActionListener(new ButtonListener());
-		confirm.addActionListener(new cListener());
-		button.add(confirm);
-		button.add(cancel);
-		frame.add(button, BorderLayout.SOUTH);
-		frame.setVisible(true);
+			else {
+				throw new TillNotOpenException();
+			}
+		} catch(TillNotOpenException e) {
+			new ProgramGUI();
+		}
+		
 	}
 	
 	private void openTill() {
@@ -814,6 +856,40 @@ public class ProgramGUI extends JFrame {
 				throw new TillNotOpenException();
 			}
 		} catch(TillNotOpenException e) {
+			new ProgramGUI();
+		}
+	}
+	
+	private void sale() {
+		ProgramGUI.this.dispose();
+		try {
+			if(isTillOpen) {
+				frame = new JFrame("Select Purchase Tender");
+				frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
+				frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+				frame.setLocationRelativeTo(null);
+				JPanel panel = new JPanel();
+				ButtonGroup group = new ButtonGroup();
+				JRadioButton cash = new JRadioButton("Cash Tender");
+				JRadioButton card = new JRadioButton("Credit/Debit Tender");
+				cash.addActionListener(e -> cprocess());
+				card.addActionListener(e -> ccprocess());
+				group.add(cash);
+				group.add(card);
+				panel.add(cash);
+				panel.add(card);
+				frame.add(panel, BorderLayout.NORTH);
+				JPanel button = new JPanel();
+				JButton cancel = new JButton("Cancel");
+				cancel.addActionListener(new ButtonListener());
+				button.add(cancel);
+				frame.add(button, BorderLayout.SOUTH);
+				frame.setVisible(true);
+			}
+			else {
+				throw new TillNotOpenException();
+			}
+		} catch (TillNotOpenException e) {
 			new ProgramGUI();
 		}
 	}
@@ -1016,6 +1092,7 @@ public class ProgramGUI extends JFrame {
 				}
 				else {
 					confirm("ccpayment");
+					
 				}
 			}
 		}
