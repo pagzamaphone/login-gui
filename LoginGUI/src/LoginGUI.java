@@ -1,4 +1,5 @@
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -14,6 +15,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 /*
@@ -24,7 +26,7 @@ import javax.swing.JTextField;
  * that has a command interface with multiple commands, to create a dummy pos.
  */
 
-@SuppressWarnings({ "serial" })
+@SuppressWarnings({ "serial", "deprecation"})
 public class LoginGUI extends JFrame {
 
 	//Public Static variables for use with other program classes
@@ -36,10 +38,9 @@ public class LoginGUI extends JFrame {
 	//Private Static variables to use all over this program class
 	private static Scanner fileScanner; 
 	private JTextField user;
-	private JTextField pass;
+	private JPasswordField pass;
 	private static final int FRAME_WIDTH = 300;
 	private static final int FRAME_HEIGHT = 145;
-
 	//Constructor for the LoginGUI
 	public LoginGUI() throws IOException {
 		//Fill the array with empty strings to avoid a NullPointerExcetion later
@@ -52,7 +53,9 @@ public class LoginGUI extends JFrame {
 			JPanel panel = new JPanel();
 			panel.setLayout(new GridLayout(2, 2));
 			user = new JTextField();
-			pass = new JTextField();
+			pass = new JPasswordField();
+			user.setOpaque(true);
+			pass.setOpaque(true);
 			JButton ok = new JButton("Confirm");
 			ok.addActionListener(new InitializeListener());
 			add(ok, BorderLayout.SOUTH);
@@ -81,7 +84,9 @@ public class LoginGUI extends JFrame {
 			JPanel panel = new JPanel();
 			panel.setLayout(new GridLayout(2, 2));
 			user = new JTextField();
-			pass = new JTextField();
+			pass = new JPasswordField();
+			user.setOpaque(true);
+			pass.setOpaque(true);
 			JPanel button = new JPanel();
 			JButton ok = new JButton("Confirm");
 			JButton cancel = new JButton("Exit Program");
@@ -117,8 +122,16 @@ public class LoginGUI extends JFrame {
 	private class InitializeListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
+			user.setBackground(Color.WHITE);
+			pass.setBackground(Color.WHITE);
+			user.repaint();
+			pass.repaint();
+			
 			if (user.getText().equals("") || pass.getText().equals("")) {
-
+				user.setBackground(Color.PINK);
+				pass.setBackground(Color.PINK);
+				user.repaint();
+				pass.repaint();
 			} 
 			else {
 				users[0] = user.getText() + ":" + pass.getText() + ";admin";
@@ -141,6 +154,10 @@ public class LoginGUI extends JFrame {
 			for(int i = 0; i < users.length; i++) {
 				if(Arrays.toString(users).contains(user.getText() + ":" + pass.getText() + ";admin") ||
 					Arrays.toString(users).contains(user.getText() + ":" + pass.getText() + ";reg")) {
+					user.setBackground(Color.WHITE);
+					pass.setBackground(Color.WHITE);
+					user.repaint();
+					pass.repaint();
 					if(users[i].equals(user.getText() + ":" + pass.getText() + ";admin")) {
 						logged = user.getText();
 						LoginGUI.this.dispose();
@@ -151,6 +168,12 @@ public class LoginGUI extends JFrame {
 						LoginGUI.this.dispose();
 						new ProgramGUI("reg", logged);
 					}
+				}
+				else {
+					user.setBackground(Color.PINK);
+					pass.setBackground(Color.PINK);
+					user.repaint();
+					pass.repaint();
 				}
 			}
 		}
