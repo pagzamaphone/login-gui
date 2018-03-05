@@ -18,6 +18,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
@@ -31,7 +32,7 @@ import javax.swing.JTextField;
  * PLEASE NOTE: Card Processing does not charge cards! It is for play use only!
  */
 
-@SuppressWarnings({"serial"})
+@SuppressWarnings({"serial", "deprecation"})
 public class ProgramGUI extends JFrame {
 
 	//Error numbers for the error(int error) method
@@ -54,7 +55,7 @@ public class ProgramGUI extends JFrame {
 	
 	//Private nonstatic JComponents for access in this class
 	private JTextField user;
-	private JTextField pass;
+	private JPasswordField pass;
 	private JTextField oldUser;
 	private JTextField cmd;
 	private JTextField purch;
@@ -231,7 +232,7 @@ public class ProgramGUI extends JFrame {
 			user = new JTextField();
 			panel.add(user);
 			panel.add(new JLabel("Enter Password: "));
-			pass = new JTextField();
+			pass = new JPasswordField();
 			panel.add(pass);
 			frame.add(panel, BorderLayout.NORTH);
 			JPanel button = new JPanel();
@@ -512,7 +513,7 @@ public class ProgramGUI extends JFrame {
 			JPanel panel = new JPanel();
 			panel.setLayout(new GridLayout(2, 1));
 			panel.setBorder(BorderFactory.createEmptyBorder(10,10,0,10));
-			panel.add(new JLabel("The user " +user.getText() + " is now aregular user"));
+			panel.add(new JLabel("The user " +user.getText() + " is now a regular user"));
 			JButton button = new JButton("Return to Main Menu");
 			button.addActionListener(e -> frame.dispose());
 			panel.add(button);
@@ -1013,7 +1014,7 @@ public class ProgramGUI extends JFrame {
 	private class PromoteListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			if(Arrays.toString(users).contains(user.getText())) {
+			if(Arrays.toString(users).contains(user.getText() + ":")) {
 				for(int i = 0; i < users.length; i++) {
 						if(!(users[i].equals(""))) {
 						if(users[i].substring(0, users[i].indexOf(':')).equals(user.getText()) && users[i].contains("admin")) {
