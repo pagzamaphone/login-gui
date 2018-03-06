@@ -1,27 +1,35 @@
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
+import java.util.Calendar;
 
 import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
 /*
- * ProgramGUI version 1 by Johnny Console
- * 01 January 2018.
+ * ProgramGUI version 2 by Johnny Console
+ * 17 February 2018.
  * This program is a basic GUI program that uses Swing and AWT to
  * do the GUI components. This program is a  basic GUI program
- * that has a command interface with multiple commands. Future plans are to 
- * transform the program into a dummy pos, starting in version 2.
+ * that has a command interface with multiple commands, to make a dummy pos.
+ * 
+ * PLEASE NOTE: Card Processing does not charge cards! It is for play use only!
  */
 
 @SuppressWarnings({"serial"})
@@ -35,27 +43,42 @@ public class ProgramGUI extends JFrame {
 	private final int ALREADY_ADMIN = 4;
 	private final int ALREADY_REG = 5;
 	private final int PERMISSIONS = 6;
+	private final int EXPIRED = 7;
 
+	//Permissons numbers for user-admin commands
+	private final int SELF = 0;
+	private final int ALL = 1;
+	
 	private static final int FRAME_WIDTH = 300;
 	private static final int FRAME_HEIGHT = 145;
+	private static int scope;
 	
 	//Private nonstatic JComponents for access in this class
 	private JTextField user;
-	private JTextField pass;
+	private JPasswordField pass;
 	private JTextField oldUser;
 	private JTextField cmd;
+	private JTextField purch;
+	private JTextField change;
+	private JTextField tender;
+	private JTextField card;
+	private JTextField expiry;
+	private JTextField cvv;
 	private JFrame frame;
 	
 	//Private static variables for use in this class
 	private static String[] users = LoginGUI.users;
 	private static  File file = LoginGUI.file;
+	private static String logged = LoginGUI.logged;
 	private static String type;
 	private int index;
+	private static boolean isTillOpen = false;
 	
 	//public constructor for the initial login program to activate the program
-	public ProgramGUI(String type) {
+	public ProgramGUI(String type, String logged) {
 		ProgramGUI.type = type;
-		setTitle("Command Window");
+		ProgramGUI.logged = logged;
+		setTitle("Till Closed");
 		setSize(FRAME_WIDTH, FRAME_HEIGHT);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -79,7 +102,6 @@ public class ProgramGUI extends JFrame {
 	}
 	//private constructor for use within the program
 	private ProgramGUI() {
-		setTitle("Command Window");
 		setSize(FRAME_WIDTH, FRAME_HEIGHT);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -99,7 +121,12 @@ public class ProgramGUI extends JFrame {
 		button.add(logout);
 		add(button, BorderLayout.SOUTH);
 		setVisible(true);
-		
+		if(isTillOpen) {
+			setTitle("Till Open");
+		}
+		else {
+			setTitle("Till Closed");
+		}
 	}
 	
 	//check the command after the button is pushed on the main interface
@@ -129,17 +156,18 @@ public class ProgramGUI extends JFrame {
 			};
 		}
 		//rename user command
-		else if(cmd.getText().equals("rename")) {
-			//permissions check: if user is an admin, proceed. If not, error with a permission error.
+		else if(cmd.getText().toLowerCase().equals("rename")) {
+			//permissions check: if user is an admin, allow the user o chose a user to rename.
+			//If not, allow the user to rename themselves only.
 			if(type.equals("admin")) {
-				rename();
+				rename(ALL);
 			}
 			else {
-				error(PERMISSIONS);
+				rename(SELF);
 			}
 		}
 		//promote user command
-		else if(cmd.getText().equals("promote")) {
+		else if(cmd.getText().toLowerCase().equals("promote")) {
 			//permissions check: if user is an admin, proceed. If not, error with a permission error.
 			if(type.equals("admin")) {
 				promote();
@@ -149,7 +177,7 @@ public class ProgramGUI extends JFrame {
 			}
 		}
 		//demote user command
-		else if(cmd.getText().equals("demote")) {
+		else if(cmd.getText().toLowerCase().equals("demote")) {
 			//permissions check: if user is an admin, proceed. If not, error with a permission error.
 			if(type.equals("admin")) {
 				demote();
@@ -157,6 +185,25 @@ public class ProgramGUI extends JFrame {
 			else {
 				error(PERMISSIONS);
 			}
+		}
+		//the rest of the commands are user level, no permission checking
+		else if(cmd.getText().toLowerCase().equals("ccprocess")) {
+			ccprocess();
+		}
+		else if(cmd.getText().toLowerCase().equals("cprocess")) {
+			cprocess();
+		}
+		else if(cmd.getText().toLowerCase().equals("opentill")) {
+			openTill();
+		}
+		else if(cmd.getText().toLowerCase().equals("closetill")) {
+			closeTill();
+		}
+		else if(cmd.getText().toLowerCase().equals("opendrawer")) {
+			openDrawer();
+		}
+		else if(cmd.getText().toLowerCase().equals("sale")) {
+			sale();
 		}
 		//if the command that was entered does not match any command, return an error.
 		else {
@@ -185,7 +232,7 @@ public class ProgramGUI extends JFrame {
 			user = new JTextField();
 			panel.add(user);
 			panel.add(new JLabel("Enter Password: "));
-			pass = new JTextField();
+			pass = new JPasswordField();
 			panel.add(pass);
 			frame.add(panel, BorderLayout.NORTH);
 			JPanel button = new JPanel();
@@ -321,6 +368,23 @@ public class ProgramGUI extends JFrame {
 			frame.add(panel, BorderLayout.NORTH);
 			frame.setVisible(true);
 		}
+		//card expired gui
+		else if(error == EXPIRED) {
+			frame.dispose();
+			frame = new JFrame("Error: Card Expired");
+			frame.setSize(390, FRAME_HEIGHT);
+			frame.setLocationRelativeTo(null);
+			frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+			JPanel panel = new JPanel();
+			panel.setLayout(new GridLayout(2, 1));
+			panel.setBorder(BorderFactory.createEmptyBorder(10,10,0,10));
+			panel.add(new JLabel("The card " + card.getText() + " expired on " + expiry.getText()));
+			JButton button = new JButton("Return to Main Menu");
+			button.addActionListener(new ButtonListener());
+			panel.add(button);
+			frame.add(panel, BorderLayout.NORTH);
+			frame.setVisible(true);
+		}
 	}
 	//this method returns the index of the next available user spot in the array
 	private int nextUserIndex() {
@@ -386,21 +450,40 @@ public class ProgramGUI extends JFrame {
 		}
 		//confirm user rename gui
 		else if(toConfirm.equals("rename")) {
-			frame.dispose();
-			frame = new JFrame("User Reanmed Successfully");
-			frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
-			frame.setLocationRelativeTo(null);
-			frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
-			JPanel panel = new JPanel();
-			panel.setLayout(new GridLayout(2, 1));
-			panel.setBorder(BorderFactory.createEmptyBorder(10,10,0,10));
-			panel.add(new JLabel("The user " +oldUser.getText() + " is now " + user.getText()));
-			JButton button = new JButton("Return to Main Menu");
-			button.addActionListener(e -> frame.dispose());
-			panel.add(button);
-			frame.add(panel, BorderLayout.NORTH);
-			frame.setAlwaysOnTop(true);
-			frame.setVisible(true);
+			if(scope == ALL) {
+				frame.dispose();
+				frame = new JFrame("User Reanmed Successfully");
+				frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
+				frame.setLocationRelativeTo(null);
+				frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+				JPanel panel = new JPanel();
+				panel.setLayout(new GridLayout(2, 1));
+				panel.setBorder(BorderFactory.createEmptyBorder(10,10,0,10));
+				panel.add(new JLabel("The user " +oldUser.getText() + " is now " + user.getText()));
+				JButton button = new JButton("Return to Main Menu");
+				button.addActionListener(e -> frame.dispose());
+				panel.add(button);
+				frame.add(panel, BorderLayout.NORTH);
+				frame.setAlwaysOnTop(true);
+				frame.setVisible(true);
+			}
+			else {
+				frame.dispose();
+				frame = new JFrame("User Reanmed Successfully");
+				frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
+				frame.setLocationRelativeTo(null);
+				frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+				JPanel panel = new JPanel();
+				panel.setLayout(new GridLayout(2, 1));
+				panel.setBorder(BorderFactory.createEmptyBorder(10,10,0,10));
+				panel.add(new JLabel("You are now " + user.getText()));
+				JButton button = new JButton("Return to Main Menu");
+				button.addActionListener(e -> frame.dispose());
+				panel.add(button);
+				frame.add(panel, BorderLayout.NORTH);
+				frame.setAlwaysOnTop(true);
+				frame.setVisible(true);
+			}
 		}
 		//confirm user promotion gui
 		else if(toConfirm.equals("promote")) {
@@ -430,9 +513,57 @@ public class ProgramGUI extends JFrame {
 			JPanel panel = new JPanel();
 			panel.setLayout(new GridLayout(2, 1));
 			panel.setBorder(BorderFactory.createEmptyBorder(10,10,0,10));
-			panel.add(new JLabel("The user " +user.getText() + " is now aregular user"));
+			panel.add(new JLabel("The user " +user.getText() + " is now a regular user"));
 			JButton button = new JButton("Return to Main Menu");
 			button.addActionListener(e -> frame.dispose());
+			panel.add(button);
+			frame.add(panel, BorderLayout.NORTH);
+			frame.setAlwaysOnTop(true);
+			frame.setVisible(true);
+		}
+		//confirm cc payment
+		else if(toConfirm.equals("ccpayment")) {
+			frame.dispose();
+			frame = new JFrame("Payment Successful");
+			frame.setSize(390, FRAME_HEIGHT);
+			frame.setLocationRelativeTo(null);
+			frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+			JPanel panel = new JPanel();
+			panel.setLayout(new GridLayout(2, 1));
+			panel.setBorder(BorderFactory.createEmptyBorder(10,10,0,10));
+			panel.add(new JLabel("The payment of $" + purch.getText() + " on " + card.getText() + " is successfull"));
+			JButton button = new JButton("Return to Main Menu");
+			button.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					frame.dispose();
+					openDrawer();
+				}
+			});
+			panel.add(button);
+			frame.add(panel, BorderLayout.NORTH);
+			frame.setAlwaysOnTop(true);
+			frame.setVisible(true);
+		}
+		//confirm cash payment
+		else if(toConfirm.equals("cpayment")) {
+			frame.dispose();
+			frame = new JFrame("Payment Successful");
+			frame.setSize(390, FRAME_HEIGHT);
+			frame.setLocationRelativeTo(null);
+			frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+			JPanel panel = new JPanel();
+			panel.setLayout(new GridLayout(2, 1));
+			panel.setBorder(BorderFactory.createEmptyBorder(10,10,0,10));
+			panel.add(new JLabel("The payment of $" + purch.getText() + " is successfull"));
+			JButton button = new JButton("Return to Main Menu");
+			button.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					frame.dispose();
+					openDrawer();
+				}
+			});
 			panel.add(button);
 			frame.add(panel, BorderLayout.NORTH);
 			frame.setAlwaysOnTop(true);
@@ -464,32 +595,57 @@ public class ProgramGUI extends JFrame {
 		frame.setVisible(true);
 	}
 	//the rename user gui is built in this method
-	private void rename() {
+	private void rename(int scope) {
+		ProgramGUI.scope = scope;
 		ProgramGUI.this.dispose();
-		frame = new JFrame("Rename a User");
-		frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
-		frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
-		frame.setLocationRelativeTo(null);
-		JPanel panel = new JPanel();
-		panel.setLayout(new GridLayout(2, 2));
-		panel.add(new JLabel("Rename which user: "));
-		oldUser = new JTextField();
-		user = new JTextField();
-		panel.add(oldUser);
-		panel.add(new JLabel("Rename to: "));
-		panel.add(user);
-		panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
-		frame.add(panel, BorderLayout.NORTH);
-		JPanel button = new JPanel();
-		JButton confirm = new JButton("Confirm Rename");
-		JButton cancel = new JButton("Cancel");
-		cancel.addActionListener(new ButtonListener());
-		confirm.addActionListener(new RenameListener());
-		button.add(confirm);
-		button.add(cancel);
-		frame.add(button, BorderLayout.SOUTH);
-		frame.setVisible(true);
-	}
+		if(scope == ALL) {
+			frame = new JFrame("Rename a User");
+			frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
+			frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+			frame.setLocationRelativeTo(null);
+			JPanel panel = new JPanel();
+			panel.setLayout(new GridLayout(2, 2));
+			panel.add(new JLabel("Rename which user: "));
+			oldUser = new JTextField();
+			user = new JTextField();
+			panel.add(oldUser);
+			panel.add(new JLabel("Rename to: "));
+			panel.add(user);
+			panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
+			frame.add(panel, BorderLayout.NORTH);
+			JPanel button = new JPanel();
+			JButton confirm = new JButton("Confirm Rename");
+			JButton cancel = new JButton("Cancel");
+			cancel.addActionListener(new ButtonListener());
+			confirm.addActionListener(new RenameListener());
+			button.add(confirm);
+			button.add(cancel);
+			frame.add(button, BorderLayout.SOUTH);
+			frame.setVisible(true);
+		}
+		else {
+			frame = new JFrame("Rename a User");
+			frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
+			frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+			frame.setLocationRelativeTo(null);
+			JPanel panel = new JPanel();
+			panel.setLayout(new GridLayout(1, 2));
+			panel.add(new JLabel("Rename to: "));
+			user = new JTextField();
+			panel.add(user);
+			panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
+			frame.add(panel, BorderLayout.NORTH);
+			JPanel button = new JPanel();
+			JButton confirm = new JButton("Confirm Rename");
+			JButton cancel = new JButton("Cancel");
+			cancel.addActionListener(new ButtonListener());
+			confirm.addActionListener(new RenameListener());
+			button.add(confirm);
+			button.add(cancel);
+			frame.add(button, BorderLayout.SOUTH);
+			frame.setVisible(true);
+		}
+}
 	//the promote user gui is built in this method
 	private void promote() {
 		ProgramGUI.this.dispose();
@@ -538,6 +694,216 @@ public class ProgramGUI extends JFrame {
 		frame.add(button, BorderLayout.SOUTH);
 		frame.setVisible(true);
 	}
+	//the card processing gui is build in this method
+	private void ccprocess() {
+		ProgramGUI.this.dispose();
+		frame.dispose();
+		try {
+			if(isTillOpen) {
+				frame = new JFrame("Process Payment: Credit Card");
+				frame.setSize(390, 175);
+				frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+				frame.setLocationRelativeTo(null);
+				JPanel panel = new JPanel();
+				panel.setLayout(new GridLayout(4, 2));
+				panel.add(new JLabel("Purchase amount: "));
+				purch = new JTextField();
+				panel.add(purch);
+				panel.add(new JLabel("Enter card number: "));
+				card = new JTextField();
+				panel.add(card);
+				panel.add(new JLabel("Enter the expiry (MM/YYYY): "));
+				expiry = new JTextField();
+				panel.add(expiry);
+				panel.add(new JLabel("Enter the CVV: "));
+				cvv = new JTextField();
+				panel.add(cvv);
+				panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
+				frame.add(panel, BorderLayout.NORTH);
+				JPanel button = new JPanel();
+				JButton confirm = new JButton("Confirm Payment");
+				JButton cancel = new JButton("Cancel");
+				cancel.addActionListener(new ButtonListener());
+				confirm.addActionListener(new ccListener());
+				button.add(confirm);
+				button.add(cancel);
+				frame.add(button, BorderLayout.SOUTH);
+				frame.setVisible(true);
+			}
+			else {
+				throw new TillNotOpenException();
+			}
+		} catch(TillNotOpenException e) {
+			new ProgramGUI();
+		}
+	}
+	
+	private void cprocess() {
+		ProgramGUI.this.dispose();
+		frame.dispose();
+		try {
+			if(isTillOpen) {
+				frame = new JFrame("Process Payment: Cash");
+				frame.setSize(FRAME_WIDTH, FRAME_HEIGHT + 10);
+				frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+				frame.setLocationRelativeTo(null);
+				JPanel panel = new JPanel();
+				panel.setLayout(new GridLayout(4, 2));
+				panel.add(new JLabel("Purchase amount: "));
+				purch = new JTextField();
+				panel.add(purch);
+				panel.add(new JLabel("Amount Tendered: "));
+				tender = new JTextField();
+				panel.add(tender);
+				panel.add(new JLabel("Change Due: "));
+				change = new JTextField();
+				change.addFocusListener(new FocusAdapter() {
+					@Override
+					public void focusGained(FocusEvent arg0) {
+						double ch = Double.parseDouble(tender.getText()) - Double.parseDouble(purch.getText());
+						change.setText((int)(ch*100) / 100.0 + "");
+					}
+				});
+				panel.add(change);
+				panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
+				frame.add(panel, BorderLayout.NORTH);
+				JPanel button = new JPanel();
+				JButton confirm = new JButton("Confirm Payment");
+				JButton cancel = new JButton("Cancel");
+				cancel.addActionListener(new ButtonListener());
+				confirm.addActionListener(new cListener());
+				button.add(confirm);
+				button.add(cancel);
+				frame.add(button, BorderLayout.SOUTH);
+				frame.setVisible(true);
+			}
+			else {
+				throw new TillNotOpenException();
+			}
+		} catch(TillNotOpenException e) {
+			new ProgramGUI();
+		}
+		
+	}
+	
+	private void openTill() {
+		ProgramGUI.this.dispose();
+		try {
+			if(!isTillOpen) {
+				frame = new JFrame("Till Opened");
+				frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
+				frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+				frame.setLocationRelativeTo(null);
+				JPanel panel = new JPanel();
+				panel.setLayout(new GridLayout(2,1));
+				panel.add(new JLabel("Your Till is now Open"));
+				JButton cancel = new JButton("OK");
+				cancel.addActionListener(new ButtonListener());
+				panel.add(cancel);
+				panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
+				frame.add(panel, BorderLayout.NORTH);
+				isTillOpen = true;
+				frame.setVisible(true);
+			}
+			else {
+				throw new TillOpenException();
+			}
+		} catch(TillOpenException e) {
+			new ProgramGUI();
+		}
+	}
+	
+	private void closeTill() {
+		ProgramGUI.this.dispose();
+		try {
+			if(isTillOpen) {
+				frame = new JFrame("Till Closed");
+				frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
+				frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+				frame.setLocationRelativeTo(null);
+				JPanel panel = new JPanel();
+				panel.setLayout(new GridLayout(2,1));
+				panel.add(new JLabel("Your Till is now closed"));
+				JButton cancel = new JButton("OK");
+				cancel.addActionListener(new ButtonListener());
+				panel.add(cancel);
+				panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
+				frame.add(panel, BorderLayout.NORTH);
+				isTillOpen = false;
+				frame.setVisible(true);
+			}
+			else {
+				throw new TillClosedException();
+			}
+		} catch(TillClosedException e) {
+			new ProgramGUI();
+		}
+	}
+	
+	private void openDrawer() {
+		ProgramGUI.this.dispose();
+		try {
+			if(isTillOpen) {
+				frame = new JFrame("Drawer Open");
+				frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
+				frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+				frame.setLocationRelativeTo(null);
+				JButton cancel = new JButton("Close Drawer");
+				cancel.addActionListener(new ButtonListener());
+				frame.add(cancel);
+				frame.setVisible(true);
+			}
+			else {
+				throw new TillNotOpenException();
+			}
+		} catch(TillNotOpenException e) {
+			new ProgramGUI();
+		}
+	}
+	
+	private void sale() {
+		ProgramGUI.this.dispose();
+		try {
+			if(isTillOpen) {
+				frame = new JFrame("Select Purchase Tender");
+				frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
+				frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+				frame.setLocationRelativeTo(null);
+				JPanel panel = new JPanel();
+				ButtonGroup group = new ButtonGroup();
+				JRadioButton cash = new JRadioButton("Cash Tender");
+				JRadioButton card = new JRadioButton("Credit/Debit Tender");
+				cash.addActionListener(e -> cprocess());
+				card.addActionListener(e -> ccprocess());
+				group.add(cash);
+				group.add(card);
+				panel.add(cash);
+				panel.add(card);
+				frame.add(panel, BorderLayout.NORTH);
+				JPanel button = new JPanel();
+				JButton cancel = new JButton("Cancel");
+				cancel.addActionListener(new ButtonListener());
+				button.add(cancel);
+				frame.add(button, BorderLayout.SOUTH);
+				frame.setVisible(true);
+			}
+			else {
+				throw new TillNotOpenException();
+			}
+		} catch (TillNotOpenException e) {
+			new ProgramGUI();
+		}
+	}
+	
+	private String getPassword(char[] array) {
+		String string = "";
+		for(int i = 0; i < array.length; i++) {
+			string = string + array[i];
+		}
+		return string;
+		
+	}
+	
 	//action listener for the ok button in the command interface
 	private class OKListener implements ActionListener {
 		@Override
@@ -569,13 +935,14 @@ public class ProgramGUI extends JFrame {
 	private class AddListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			char[] password = pass.getPassword();
 			for(int i = 0; i < users.length; i++) {
 				if(Arrays.toString(users).contains(user.getText() + ":")) {
 					error(USER_EXISTS);
 				}
 				
 				else {
-					users[index] = user.getText() + ":" + pass.getText() + ";reg";
+					users[index] = user.getText() + ":" + getPassword(password) + ";reg";
 					break;
 				}
 			}
@@ -613,20 +980,39 @@ public class ProgramGUI extends JFrame {
 	private class RenameListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			for(int i = 0; i < users.length; i++) {
-				if(!(users[i].equals(""))) {
-					if(users[i].substring(0, users[i].indexOf(':')).equals(user.getText())) {
-						error(USER_EXISTS);
-					}
-				}
-			}
+			if(scope == ALL) {
 				for(int i = 0; i < users.length; i++) {
 					if(!(users[i].equals(""))) {
-						if(users[i].substring(0, users[i].indexOf(':')).equals(oldUser.getText())) {
-							users[i] = user.getText() + users[i].substring(users[i].indexOf(':'));
+						if(users[i].substring(0, users[i].indexOf(':')).equals(user.getText())) {
+							error(USER_EXISTS);
 						}
 					}
 				}
+					for(int i = 0; i < users.length; i++) {
+						if(!(users[i].equals(""))) {
+							if(users[i].substring(0, users[i].indexOf(':')).equals(oldUser.getText())) {
+								users[i] = user.getText() + users[i].substring(users[i].indexOf(':'));
+							}
+						}
+					}
+			}
+			else {
+				for(int i = 0; i < users.length; i++) {
+					if(!(users[i].equals(""))) {
+						if(users[i].substring(0, users[i].indexOf(':')).equals(user.getText())) {
+							error(USER_EXISTS);
+						}
+					}
+				}
+					for(int i = 0; i < users.length; i++) {
+						if(!(users[i].equals(""))) {
+							if(users[i].substring(0, users[i].indexOf(':')).equals(logged)) {
+								users[i] = user.getText() + users[i].substring(users[i].indexOf(':'));
+								logged = user.getText();
+							}
+						}
+					}
+			}
 			try {
 				repopFile();
 				confirm("rename");
@@ -638,7 +1024,7 @@ public class ProgramGUI extends JFrame {
 	private class PromoteListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			if(Arrays.toString(users).contains(user.getText())) {
+			if(Arrays.toString(users).contains(user.getText() + ":")) {
 				for(int i = 0; i < users.length; i++) {
 						if(!(users[i].equals(""))) {
 						if(users[i].substring(0, users[i].indexOf(':')).equals(user.getText()) && users[i].contains("admin")) {
@@ -664,7 +1050,7 @@ public class ProgramGUI extends JFrame {
 	private class DemoteListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			if(Arrays.toString(users).contains(user.getText())) {
+			if(Arrays.toString(users).contains(user.getText() + ":")) {
 				for(int i = 0; i < users.length; i++) {
 						if(!(users[i].equals(""))) {
 						if(users[i].substring(0, users[i].indexOf(':')).equals(user.getText()) && users[i].contains("reg")) {
@@ -683,6 +1069,62 @@ public class ProgramGUI extends JFrame {
 		}
 		else {
 			error(USER_NOT_FOUND);			
+			}
+		}
+	}
+	
+	//listener for processng card payments
+	private class ccListener implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if(card.getText().equals("") || expiry.getText().equals("") || purch.getText().equals("") || cvv.getText().equals("")) {
+				cvv.setBackground(Color.PINK);
+				card.setBackground(Color.PINK);
+				expiry.setBackground(Color.PINK);
+				purch.setBackground(Color.PINK);
+				cvv.repaint();
+				card.repaint();
+				expiry.repaint();
+				purch.repaint();
+			}
+			else {
+				cvv.setBackground(Color.WHITE);
+				card.setBackground(Color.WHITE);
+				expiry.setBackground(Color.WHITE);
+				purch.setBackground(Color.WHITE);
+				cvv.repaint();
+				card.repaint();
+				expiry.repaint();
+				purch.repaint();
+				
+				if(Integer.parseInt(expiry.getText().substring(expiry.getText().indexOf('/') + 1)) < Calendar.YEAR && 
+						Integer.parseInt(expiry.getText().substring(0, expiry.getText().indexOf('/'))) < Calendar.MONTH) {
+					error(EXPIRED);
+				}
+				else {
+					confirm("ccpayment");
+					
+				}
+			}
+		}
+	}
+	
+	
+	private class cListener implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if(purch.getText().equals("") || tender.getText().equals("")) {
+				purch.setBackground(Color.PINK);
+				tender.setBackground(Color.PINK);
+				purch.repaint();
+				tender.repaint();
+			}
+			else {
+				purch.setBackground(Color.WHITE);
+				tender.setBackground(Color.WHITE);
+				purch.repaint();
+				tender.repaint();
+				confirm("cpayment");
 			}
 		}
 	}
