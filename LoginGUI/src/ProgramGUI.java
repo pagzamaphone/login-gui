@@ -32,7 +32,7 @@ import javax.swing.JTextField;
  * PLEASE NOTE: Card Processing does not charge cards! It is for play use only!
  */
 
-@SuppressWarnings({"serial", "deprecation"})
+@SuppressWarnings({"serial"})
 public class ProgramGUI extends JFrame {
 
 	//Error numbers for the error(int error) method
@@ -895,6 +895,15 @@ public class ProgramGUI extends JFrame {
 		}
 	}
 	
+	private String getPassword(char[] array) {
+		String string = "";
+		for(int i = 0; i < array.length; i++) {
+			string = string + array[i];
+		}
+		return string;
+		
+	}
+	
 	//action listener for the ok button in the command interface
 	private class OKListener implements ActionListener {
 		@Override
@@ -926,13 +935,14 @@ public class ProgramGUI extends JFrame {
 	private class AddListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			char[] password = pass.getPassword();
 			for(int i = 0; i < users.length; i++) {
 				if(Arrays.toString(users).contains(user.getText() + ":")) {
 					error(USER_EXISTS);
 				}
 				
 				else {
-					users[index] = user.getText() + ":" + pass.getText() + ";reg";
+					users[index] = user.getText() + ":" + getPassword(password) + ";reg";
 					break;
 				}
 			}

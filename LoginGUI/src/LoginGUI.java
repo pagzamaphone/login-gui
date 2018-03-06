@@ -26,7 +26,7 @@ import javax.swing.JTextField;
  * that has a command interface with multiple commands, to create a dummy pos.
  */
 
-@SuppressWarnings({ "serial", "deprecation"})
+@SuppressWarnings({ "serial"})
 public class LoginGUI extends JFrame {
 
 	//Public Static variables for use with other program classes
@@ -117,24 +117,34 @@ public class LoginGUI extends JFrame {
 		writer.println(users[0]);
 		writer.close();
 	}
+	
+	private String getPassword(char[] array) {
+		String string = "";
+		for(int i = 0; i < array.length; i++) {
+			string = string + array[i];
+		}
+		return string;
+		
+	}
 
 	//Listener for the initialization
 	private class InitializeListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
+			char[] password = pass.getPassword();
 			user.setBackground(Color.WHITE);
 			pass.setBackground(Color.WHITE);
 			user.repaint();
 			pass.repaint();
 			
-			if (user.getText().equals("") || pass.getText().equals("")) {
+			if (user.getText().equals("") || getPassword(password).equals("")) {
 				user.setBackground(Color.PINK);
 				pass.setBackground(Color.PINK);
 				user.repaint();
 				pass.repaint();
 			} 
 			else {
-				users[0] = user.getText() + ":" + pass.getText() + ";admin";
+				users[0] = user.getText() + ":" + getPassword(password) + ";admin";
 
 				LoginGUI.this.dispose();
 				try {
@@ -150,20 +160,20 @@ public class LoginGUI extends JFrame {
 	private class LoginListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			
+			char[] password = pass.getPassword();
 			for(int i = 0; i < users.length; i++) {
-				if(Arrays.toString(users).contains(user.getText() + ":" + pass.getText() + ";admin") ||
-					Arrays.toString(users).contains(user.getText() + ":" + pass.getText() + ";reg")) {
+				if(Arrays.toString(users).contains(user.getText() + ":" + getPassword(password) + ";admin") ||
+					Arrays.toString(users).contains(user.getText() + ":" + getPassword(password) + ";reg")) {
 					user.setBackground(Color.WHITE);
 					pass.setBackground(Color.WHITE);
 					user.repaint();
 					pass.repaint();
-					if(users[i].equals(user.getText() + ":" + pass.getText() + ";admin")) {
+					if(users[i].equals(user.getText() + ":" + getPassword(password) + ";admin")) {
 						logged = user.getText();
 						LoginGUI.this.dispose();
 						new ProgramGUI("admin", logged);
 					}
-					else if(users[i].equals(user.getText() + ":" + pass.getText() + ";reg")) {
+					else if(users[i].equals(user.getText() + ":" + getPassword(password) + ";reg")) {
 						logged = user.getText();
 						LoginGUI.this.dispose();
 						new ProgramGUI("reg", logged);
