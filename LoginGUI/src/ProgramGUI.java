@@ -1050,7 +1050,7 @@ public class ProgramGUI extends JFrame {
 	private class DemoteListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			if(Arrays.toString(users).contains(user.getText())) {
+			if(Arrays.toString(users).contains(user.getText() + ":")) {
 				for(int i = 0; i < users.length; i++) {
 						if(!(users[i].equals(""))) {
 						if(users[i].substring(0, users[i].indexOf(':')).equals(user.getText()) && users[i].contains("reg")) {
